@@ -1,0 +1,36 @@
+# Rust
+/target
+**/*.rs.bk
+Cargo.lock.bak
+
+# Bazel
+/bazel-*
+MODULE.bazel.lock.bak
+
+# Node / pnpm
+node_modules
+frontend/dist
+.pnpm-store
+
+# IDE / OS
+.idea
+.vscode/*.local.json
+.DS_Store
+
+# jj (Jujutsu) VCS state
+.jj
+
+# Built binary (produced by `bazel build`, should not be committed)
+/app
+
+# Local env
+.env
+.env.local
+
+# Tilt
+tilt_modules
+.tiltbuild
+
+# Docs
+docs/implementation-plans/
+
