@@ -35,7 +35,7 @@ pub async fn list_artists(
 ) -> Result<Json<PageDto<ArtistDto>>, ApiError> {
     if q.local {
         let artists = state.artists.find_local().await?;
-        let count = artists.len() as i64;
+        let count = i64::try_from(artists.len()).unwrap_or(i64::MAX);
         let dtos = artists.iter().map(ArtistDto::from_artist).collect();
         return Ok(Json(PageDto {
             items: dtos,
@@ -50,7 +50,7 @@ pub async fn list_artists(
             .iter()
             .map(ArtistDto::from_artist)
             .collect::<Vec<_>>();
-        let count = items.len() as i64;
+        let count = i64::try_from(items.len()).unwrap_or(i64::MAX);
         return Ok(Json(PageDto {
             items,
             total: count,

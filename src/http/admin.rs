@@ -56,7 +56,7 @@ pub async fn trigger_all_ingestion(
 
 pub async fn trigger_source_ingestion(
     State(state): State<AppState>,
-    Path(source_id): Path<String>,
+    Path(source_id): Path<Uuid>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
     if !state.config.ingestion_enabled {
         return Err(ApiError::Ingestion(
@@ -65,7 +65,7 @@ pub async fn trigger_source_ingestion(
     }
     Ok(Json(json!({
         "status": "triggered",
-        "source_id": source_id
+        "source_id": source_id.to_string()
     })))
 }
 
@@ -77,24 +77,7 @@ pub async fn get_featured_history(
     for f in &featured_list {
         let event = state.events.find_by_id(f.event_id).await?;
         use crate::http::dto::{EventDetailDto, EventDto};
-        let event_dto = EventDto {
-            id: event.id.0,
-            title: event.title.clone(),
-            slug: event.slug.clone(),
-            start_time: event.start_time,
-            doors_time: event.doors_time,
-            venue: None,
-            artists: vec![],
-            min_price: event.min_price,
-            max_price: event.max_price,
-            price_tier: event.price_tier,
-            ticket_url: event.ticket_url.clone(),
-            sold_out: event.sold_out,
-            image_url: event.image_url.clone(),
-            age_restriction: event.age_restriction,
-            status: event.status,
-            created_at: event.created_at,
-        };
+        let event_dto = EventDto::from_event(&event);
         dtos.push(FeaturedEventDto {
             id: f.id.0,
             event: EventDetailDto {
@@ -141,24 +124,7 @@ pub async fn create_featured(
     let saved = state.featured.save(&featured).await?;
 
     use crate::http::dto::{EventDetailDto, EventDto};
-    let event_dto = EventDto {
-        id: event.id.0,
-        title: event.title.clone(),
-        slug: event.slug.clone(),
-        start_time: event.start_time,
-        doors_time: event.doors_time,
-        venue: None,
-        artists: vec![],
-        min_price: event.min_price,
-        max_price: event.max_price,
-        price_tier: event.price_tier,
-        ticket_url: event.ticket_url.clone(),
-        sold_out: event.sold_out,
-        image_url: event.image_url.clone(),
-        age_restriction: event.age_restriction,
-        status: event.status,
-        created_at: event.created_at,
-    };
+    let event_dto = EventDto::from_event(&event);
 
     Ok((
         StatusCode::CREATED,

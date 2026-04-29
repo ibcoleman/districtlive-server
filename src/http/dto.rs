@@ -79,6 +79,31 @@ pub struct EventDto {
     pub created_at: OffsetDateTime,
 }
 
+impl EventDto {
+    /// Construct an EventDto from a domain Event, with empty venue and artists.
+    /// Call sites should hydrate venue and artists separately if needed.
+    pub fn from_event(e: &crate::domain::event::Event) -> Self {
+        EventDto {
+            id: e.id.0,
+            title: e.title.clone(),
+            slug: e.slug.clone(),
+            start_time: e.start_time,
+            doors_time: e.doors_time,
+            venue: None,
+            artists: vec![],
+            min_price: e.min_price,
+            max_price: e.max_price,
+            price_tier: e.price_tier,
+            ticket_url: e.ticket_url.clone(),
+            sold_out: e.sold_out,
+            image_url: e.image_url.clone(),
+            age_restriction: e.age_restriction,
+            status: e.status,
+            created_at: e.created_at,
+        }
+    }
+}
+
 #[derive(Serialize)]
 pub struct EventSourceDto {
     pub source_type: SourceType,

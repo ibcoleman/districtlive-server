@@ -3,6 +3,7 @@ use async_trait::async_trait;
 use crate::domain::{
     artist::{Artist, ArtistId},
     error::RepoError,
+    event::EventId,
     Page, Pagination,
 };
 
@@ -26,4 +27,7 @@ pub trait ArtistRepository: Send + Sync {
 
     /// Reset FAILED artists that have not exceeded `max_attempts` back to PENDING.
     async fn reset_eligible_failed_to_pending(&self, max_attempts: i32) -> Result<u64, RepoError>;
+
+    /// Find all artists for a given event.
+    async fn find_by_event_id(&self, event_id: EventId) -> Result<Vec<Artist>, RepoError>;
 }

@@ -90,13 +90,47 @@ pub async fn list_events(
     }))
 }
 
+/// Get event detail by UUID path parameter.
+///
+/// Note: a malformed UUID in the path returns 400 (axum path extraction failure).
+/// A valid UUID that doesn't match any event returns 404 (domain NotFound).
+/// Both are intentional — 400 for invalid input, 404 for missing resource.
 pub async fn get_event(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
 ) -> Result<Json<EventDetailDto>, ApiError> {
     use crate::domain::event::EventId;
+    use crate::http::dto::{ArtistDto, VenueDto};
+
     let event = state.events.find_by_id(EventId(id)).await?;
     let related = state.events.find_related_events(event.id, 7).await?;
+
+    // Load venue (optional — None if not found or no venue_id)
+    let venue_dto = if let Some(venue_id) = event.venue_id {
+        match state.venues.find_by_id(venue_id).await {
+            Ok(v) => Some(VenueDto {
+                id: v.id.0,
+                name: v.effective_name().to_owned(),
+                slug: v.effective_slug().to_owned(),
+                neighborhood: v.neighborhood.clone(),
+                website_url: v.website_url.clone(),
+                upcoming_event_count: 0, // not needed in event detail context
+            }),
+            Err(_) => None,
+        }
+    } else {
+        None
+    };
+
+    // Load artists for this event
+    let artists: Vec<ArtistDto> = state
+        .artists
+        .find_by_event_id(event.id)
+        .await
+        .unwrap_or_default()
+        .iter()
+        .map(ArtistDto::from_artist)
+        .collect();
 
     let event_dto = EventDto {
         id: event.id.0,
@@ -104,8 +138,8 @@ pub async fn get_event(
         slug: event.slug.clone(),
         start_time: event.start_time,
         doors_time: event.doors_time,
-        venue: None, // TODO: load venue in Phase 4 enhancement
-        artists: vec![],
+        venue: venue_dto,
+        artists,
         min_price: event.min_price,
         max_price: event.max_price,
         price_tier: event.price_tier,

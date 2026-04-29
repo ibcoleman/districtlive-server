@@ -34,6 +34,9 @@ pub async fn require_basic_auth(
     // Parse "Basic <base64>" header
     let credentials = parse_basic_auth(auth_header).ok_or(ApiError::Unauthorized)?;
 
+    // Note: string comparison is not constant-time — this leaks timing information.
+    // For an admin-only API this is an accepted low-severity risk.
+    // A future improvement would use a constant-time comparison crate (e.g. subtle).
     if credentials.0 == state.config.admin_username && credentials.1 == state.config.admin_password
     {
         Ok(next.run(request).await)

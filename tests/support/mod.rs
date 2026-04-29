@@ -148,6 +148,9 @@ impl ArtistRepository for EmptyArtistRepository {
     async fn reset_eligible_failed_to_pending(&self, _max_attempts: i32) -> Result<u64, RepoError> {
         Ok(0)
     }
+    async fn find_by_event_id(&self, _event_id: EventId) -> Result<Vec<Artist>, RepoError> {
+        Ok(vec![])
+    }
 }
 
 /// Always-empty featured event repository for testing.

@@ -208,6 +208,27 @@ impl ArtistRepository for PgArtistRepository {
         .await?;
         Ok(result.rows_affected())
     }
+
+    async fn find_by_event_id(
+        &self,
+        event_id: crate::domain::event::EventId,
+    ) -> Result<Vec<Artist>, RepoError> {
+        let rows = sqlx::query_as::<_, ArtistRow>(
+            r#"SELECT a.id, a.name, a.slug, a.genres, a.is_local,
+                      a.spotify_url, a.bandcamp_url, a.instagram_url,
+                      a.enrichment_status, a.enrichment_attempts, a.last_enriched_at, a.musicbrainz_id,
+                      a.spotify_id, a.canonical_name, a.mb_tags, a.spotify_genres,
+                      a.image_url, a.created_at, a.updated_at
+               FROM artists a
+               JOIN event_artists ea ON ea.artist_id = a.id
+               WHERE ea.event_id = $1
+               ORDER BY a.name"#,
+        )
+        .bind(event_id.0)
+        .fetch_all(&*self.pool)
+        .await?;
+        Ok(rows.into_iter().map(Artist::from).collect())
+    }
 }
 
 // ---- Row type ----

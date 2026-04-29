@@ -71,6 +71,38 @@ async fn list_events_bad_date_returns_400() {
         .assert_status(StatusCode::BAD_REQUEST);
 }
 
+// --- AC5.6: Blank blurb returns 400 ---
+#[tokio::test]
+async fn create_featured_blank_blurb_returns_400() {
+    let server = test_server();
+    let creds = base64_encode("testuser:testpass");
+    server
+        .post("/api/admin/featured")
+        .add_header("Authorization", &format!("Basic {creds}"))
+        .json(&serde_json::json!({
+            "event_id": "00000000-0000-0000-0000-000000000001",
+            "blurb": "   "
+        }))
+        .await
+        .assert_status(StatusCode::BAD_REQUEST);
+}
+
+// --- AC5.7: Unknown event UUID returns 404 ---
+#[tokio::test]
+async fn create_featured_unknown_event_returns_404() {
+    let server = test_server();
+    let creds = base64_encode("testuser:testpass");
+    server
+        .post("/api/admin/featured")
+        .add_header("Authorization", &format!("Basic {creds}"))
+        .json(&serde_json::json!({
+            "event_id": "00000000-0000-0000-0000-000000000001",
+            "blurb": "A real blurb about this event"
+        }))
+        .await
+        .assert_status(StatusCode::NOT_FOUND);
+}
+
 fn base64_encode(s: &str) -> String {
     use base64::Engine;
     base64::engine::general_purpose::STANDARD.encode(s.as_bytes())

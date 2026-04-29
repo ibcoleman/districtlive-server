@@ -34,7 +34,7 @@ pub async fn list_venues(
     // If neighborhood filter, use filtered query; otherwise paginated list
     let (items, total) = if let Some(ref neighborhood) = q.neighborhood {
         let venues = state.venues.find_by_neighborhood(neighborhood).await?;
-        let count = venues.len() as i64;
+        let count = i64::try_from(venues.len()).unwrap_or(i64::MAX);
         (venues, count)
     } else {
         let page = state
