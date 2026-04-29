@@ -1,6 +1,11 @@
+pub mod artists;
 pub mod dto;
 pub mod error;
+pub mod events;
+pub mod featured;
 pub mod middleware;
+pub mod venues;
+pub mod version;
 
 use crate::config::Config;
 use crate::ports::{
