@@ -34,6 +34,7 @@ rust_test(
         "//:lib",
         "@crates//:proptest",
         "@crates//:tokio",
+        "@crates//:uuid",
     ],
     proc_macro_deps = [
         "@crates//:async-trait",
