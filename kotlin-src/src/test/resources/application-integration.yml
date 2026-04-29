@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:districtlive_test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  flyway:
+    enabled: false
+
+districtlive:
+  jwt:
+    secret: test-secret-key-must-be-at-least-32-bytes-long
+  admin:
+    username: admin
+    password: admin
+  connectors:
+    ticketmaster:
+      api-key: test-key
+      base-url: http://localhost:18080
+      dma-id: 224
+      page-size: 200
+    bandsintown:
+      app-id: test-app-id
+      base-url: http://localhost:18081
+      seed-artists:
+        - "Test Artist"
+  ingestion:
+    enabled: false
+    api-cron: "0 0 */6 * * *"
+    scraper-cron: "0 0 3 * * *"

@@ -1,1 +1,2 @@
-/home/ibcoleman/Projects/districtlive-server/pnpm-workspace.yaml
+packages:
+  - "frontend"

@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+districtlive:
+  connectors:
+    ticketmaster:
+      api-key: ${TICKETMASTER_API_KEY}
+      base-url: https://app.ticketmaster.com/discovery/v2
+      page-size: 200
+    bandsintown:
+      app-id: ${BANDSINTOWN_APP_ID:}
+      base-url: https://rest.bandsintown.com
+      seed-artists:
+        - "Fugazi"
+        - "Bad Brains"
+        - "Minor Threat"
+  ingestion:
+    enabled: ${INGESTION_ENABLED:true}
+    api-cron: "0 0 */6 * * *"
+    scraper-cron: "0 0 3 * * *"
+
+server:
+  error:
+    include-stacktrace: never
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info,health

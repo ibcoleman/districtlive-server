@@ -1,1 +1,6 @@
-/home/ibcoleman/Projects/districtlive-server/package.json
+{
+  "private": true,
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild"]
+  }
+}

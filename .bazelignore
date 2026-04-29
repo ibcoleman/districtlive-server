@@ -1,1 +1,2 @@
-/home/ibcoleman/Projects/districtlive-server/.bazelignore
+frontend/node_modules
+node_modules

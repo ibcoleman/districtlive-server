@@ -1,1 +1,3 @@
-/home/ibcoleman/Projects/districtlive-server/.bazelrc
+common --enable_bzlmod
+build --incompatible_strict_action_env
+test --test_output=errors

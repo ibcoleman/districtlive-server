@@ -1,0 +1,97 @@
+spring:
+  application:
+    name: DistrictLiveServer
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:31432/districtlive}
+    username: ${DB_USERNAME:district}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    repair-on-migrate: true
+
+districtlive:
+  jwt:
+    secret: ${JWT_SECRET:change-me-in-production-must-be-at-least-32-bytes}
+  admin:
+    username: ${ADMIN_USERNAME:admin}
+    password: ${ADMIN_PASSWORD:admin}
+  connectors:
+    ticketmaster:
+      api-key: ${TICKETMASTER_API_KEY:}
+      base-url: https://app.ticketmaster.com/discovery/v2
+      page-size: 200
+    bandsintown:
+      app-id: ${BANDSINTOWN_APP_ID:}
+      base-url: https://rest.bandsintown.com
+      seed-artists:
+        - "Fugazi"
+        - "Bad Brains"
+        - "Minor Threat"
+    dice:
+      venue-slugs:
+        - "songbyrd-r58r"
+        - "dc9-q2xvo"
+        - "comet-ping-pong-5bky"
+        - "byrdland-wo3n"
+        - "berhta-8emn5"
+        - "the-arlo-washington-dc-2w997"
+        - "secret-location---dc-xeex3"
+    union-stage-presents:
+      venues:
+        - slug: union-stage
+          path: /union-stage/shows
+        - slug: jammin-java
+          path: /jammin-java/shows
+        - slug: pearl-street-warehouse
+          path: /pearl-street/shows
+        - slug: howard-theatre
+          path: /the-howard/shows
+        - slug: miracle-theatre
+          path: /miracle-theatre/shows
+        - slug: capital-turnaround
+          path: /capital-turnaround/shows
+        - slug: nationals-park
+          path: /nationals-park/shows
+  ingestion:
+    enabled: ${INGESTION_ENABLED:false}
+    api-cron: "0 0 */6 * * *"
+    scraper-cron: "0 0 3 * * *"
+  notifications:
+    discord:
+      enabled: false
+      webhook-url: ${DISCORD_WEBHOOK_URL:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: info
+
+enrichment:
+  enabled: ${ENRICHMENT_ENABLED:false}
+  schedule: "0 */5 * * * *"          # every 5 minutes
+  batch-size: 20
+  max-attempts: 3
+  musicbrainz:
+    enabled: true
+    rate-limit-ms: 1100
+    confidence-threshold: 0.90
+    user-agent: "DistrictLive/1.0 ( contact@districtlive.memetoclasm.com )"
+    base-url: "https://musicbrainz.org"
+  spotify:
+    enabled: false
+    client-id: ${SPOTIFY_CLIENT_ID:}
+    client-secret: ${SPOTIFY_CLIENT_SECRET:}
+    confidence-threshold: 0.90
+    token-base-url: "https://accounts.spotify.com"
+    search-base-url: "https://api.spotify.com"
+    max-retries: 3
+
+vite:
+  dev: ${VITE_DEV:false}
+  dev-server-url: ${VITE_DEV_SERVER_URL:http://localhost:5173}

@@ -1,1 +1,5 @@
-/home/ibcoleman/Projects/districtlive-server/.dockerignore
+target
+bazel-*
+node_modules
+frontend/dist
+.git
