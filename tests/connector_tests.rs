@@ -102,6 +102,25 @@ fn comet_ping_pong_parses_listing_fixture() {
 }
 
 #[test]
+fn comet_ping_pong_detail_enriches_event() {
+    let listing_html = include_str!(concat!("fixtures/comet-ping-pong-listing.html"));
+    let detail_html = include_str!(concat!("fixtures/comet-ping-pong-detail.html"));
+
+    let mut events = CometPingPongScraper::parse_listing(listing_html);
+    assert!(!events.is_empty(), "Need at least 1 event from listing");
+    let (mut event, _) = events.remove(0);
+
+    CometPingPongScraper::parse_detail(detail_html, &mut event);
+
+    // After detail, description or price may be populated (depends on fixture content)
+    // Just assert the method ran without panicking and the event is still valid
+    assert!(
+        !event.title.is_empty(),
+        "Title should still be present after detail enrichment"
+    );
+}
+
+#[test]
 fn pie_shop_parses_listing_fixture() {
     let html = include_str!(concat!("fixtures/pie-shop-listing.html"));
     let events = PieShopScraper::parse_listing(html);

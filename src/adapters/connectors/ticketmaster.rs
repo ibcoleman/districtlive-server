@@ -104,17 +104,14 @@ impl SourceConnector for TicketmasterConnector {
 }
 
 fn is_dc_event(event: &Value) -> bool {
-    let venue = event
+    let Some(venue) = event
         .get("_embedded")
         .and_then(|e| e.get("venues"))
         .and_then(|v| v.as_array())
-        .and_then(|v| v.first());
-
-    if venue.is_none() {
+        .and_then(|v| v.first())
+    else {
         return false;
-    }
-
-    let venue = venue.unwrap();
+    };
     let city = venue
         .get("city")
         .and_then(|c| c.get("name"))

@@ -30,7 +30,7 @@ impl DiceFmConnector {
     }
 
     /// Parse HTML with JSON-LD blocks into RawEvents. Used by both fetch() and tests.
-    pub fn parse_html(html: &str, _venue_slug: &str) -> Result<Vec<RawEvent>, IngestionError> {
+    pub fn parse_html(html: &str, venue_slug: &str) -> Result<Vec<RawEvent>, IngestionError> {
         let document = Html::parse_document(html);
 
         // Find script[type="application/ld+json"] tags
@@ -54,13 +54,13 @@ impl DiceFmConnector {
                                 events.append(&mut place_events);
                             }
                             Err(e) => {
-                                tracing::warn!("Failed to parse Place node: {}", e);
+                                tracing::warn!(venue = %venue_slug, error = %e, "Failed to parse Place node");
                             }
                         }
                     }
                 }
                 Err(e) => {
-                    tracing::warn!("Failed to parse JSON-LD block: {}", e);
+                    tracing::warn!(venue = %venue_slug, error = %e, "Failed to parse JSON-LD block");
                 }
             }
         }
@@ -166,11 +166,9 @@ fn parse_music_event(
         }
     });
 
-    if title.is_none() {
+    let Some(title) = title else {
         return Ok(None);
-    }
-
-    let title = title.unwrap();
+    };
 
     let url = event.get("url").and_then(|u| u.as_str()).map(str::to_owned);
 
@@ -222,13 +220,13 @@ fn parse_music_event(
         .as_ref()
         .map(|u| derive_source_identifier(u))
         .or_else(|| {
+            let start_date = event
+                .get("startDate")
+                .and_then(|sd| sd.as_str())
+                .unwrap_or("");
             Some(derive_source_identifier(&format!(
                 "{}|{}",
-                title,
-                event
-                    .get("startDate")
-                    .and_then(|sd| sd.as_str())
-                    .unwrap_or("")
+                title, start_date
             )))
         });
 

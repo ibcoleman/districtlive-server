@@ -147,12 +147,9 @@ fn parse_bandsintown_datetime(s: &str) -> Result<OffsetDateTime, IngestionError>
 }
 
 fn is_in_dc_area(event: &Value) -> bool {
-    let venue = event.get("venue");
-    if venue.is_none() {
+    let Some(venue) = event.get("venue") else {
         return false;
-    }
-
-    let venue = venue.unwrap();
+    };
     let city = venue
         .get("city")
         .and_then(|c| c.as_str())

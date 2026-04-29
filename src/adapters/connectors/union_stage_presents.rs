@@ -218,7 +218,33 @@ impl SourceConnector for UnionStagePresentsScraper {
                 Ok(response) => match response.text().await {
                     Ok(html) => {
                         let partial_events = Self::parse_listing(&html, slug, name, address);
-                        all_events.extend(partial_events.into_iter().map(|(e, _)| e));
+                        for (mut event, detail_url) in partial_events {
+                            if !detail_url.is_empty() {
+                                tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+                                match self.client.get(&detail_url).send().await {
+                                    Ok(resp) => match resp.text().await {
+                                        Ok(detail_html) => {
+                                            Self::parse_detail(&detail_html, &mut event)
+                                        }
+                                        Err(e) => {
+                                            tracing::warn!(
+                                                error = %e,
+                                                url = %detail_url,
+                                                "Failed to read detail page"
+                                            )
+                                        }
+                                    },
+                                    Err(e) => {
+                                        tracing::warn!(
+                                            error = %e,
+                                            url = %detail_url,
+                                            "Failed to fetch detail page"
+                                        )
+                                    }
+                                }
+                            }
+                            all_events.push(event);
+                        }
                     }
                     Err(e) => {
                         tracing::warn!(
