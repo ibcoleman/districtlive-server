@@ -138,12 +138,12 @@ fn parse_music_event(
     let start_time = event
         .get("startDate")
         .and_then(|sd| sd.as_str())
-        .and_then(|sd| parse_iso_instant(sd));
+        .and_then(parse_iso_instant);
 
     let end_time = event
         .get("endDate")
         .and_then(|ed| ed.as_str())
-        .and_then(|ed| parse_iso_instant(ed));
+        .and_then(parse_iso_instant);
 
     let description = event
         .get("description")

@@ -161,17 +161,15 @@ fn parse_dc9_date(date_text: &str, current_year: u32) -> Option<Date> {
     let fmt =
         time::macros::format_description!("[weekday repr:short], [month repr:short] [day] [year]");
 
-    time::Date::parse(&with_year, fmt)
-        .ok()
-        .and_then(|mut parsed| {
-            // If date is >2 months in the past, assume next year
-            let now = time::OffsetDateTime::now_utc().date();
-            let two_months_ago = now.saturating_sub(time::Duration::days(60));
-            if parsed < two_months_ago {
-                parsed = parsed.saturating_add(time::Duration::days(365));
-            }
-            Some(parsed)
-        })
+    time::Date::parse(&with_year, fmt).ok().map(|mut parsed| {
+        // If date is >2 months in the past, assume next year
+        let now = time::OffsetDateTime::now_utc().date();
+        let two_months_ago = now.saturating_sub(time::Duration::days(60));
+        if parsed < two_months_ago {
+            parsed = parsed.saturating_add(time::Duration::days(365));
+        }
+        parsed
+    })
 }
 
 fn parse_time_from_doors(doors_text: &str, label: &str) -> Option<Time> {
@@ -225,7 +223,7 @@ fn parse_time_from_doors(doors_text: &str, label: &str) -> Option<Time> {
 
 fn resolve_datetime(date: Option<Date>, time: Option<Time>) -> Option<OffsetDateTime> {
     date.map(|d| {
-        let t = time.unwrap_or_else(|| Time::MIDNIGHT);
+        let t = time.unwrap_or(Time::MIDNIGHT);
         OffsetDateTime::new_utc(d, t)
     })
 }

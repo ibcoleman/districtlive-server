@@ -158,7 +158,7 @@ fn parse_seven_drum_city_date(date_str: &str, time_text: &str) -> Option<OffsetD
     } else {
         // Try to parse time (format: "h:mm a" e.g. "8:00 PM")
         let fmt_time = time::macros::format_description!("[hour repr:12]:[minute] [period]");
-        time::Time::parse(&time_text, fmt_time)
+        time::Time::parse(time_text, fmt_time)
             .ok()
             .unwrap_or_else(|| time::Time::from_hms(20, 0, 0).unwrap())
     };

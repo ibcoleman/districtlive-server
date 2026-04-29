@@ -72,7 +72,7 @@ impl PieShopScraper {
                 .unwrap_or_default();
 
             let start_time =
-                parse_pie_shop_datetime(&date_text).unwrap_or_else(|| OffsetDateTime::now_utc());
+                parse_pie_shop_datetime(&date_text).unwrap_or_else(OffsetDateTime::now_utc);
 
             let event = RawEvent {
                 source_type: SourceType::VenueScraper,

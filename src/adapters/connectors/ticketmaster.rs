@@ -152,54 +152,52 @@ fn parse_event_node(event: &Value) -> Result<RawEvent, IngestionError> {
         .unwrap_or("")
         .to_owned();
 
-    let venue_address = venue
-        .map(|v| {
-            let mut parts = Vec::new();
-            if let Some(addr) = v
-                .get("address")
-                .and_then(|a| a.get("line1"))
-                .and_then(|l| l.as_str())
-            {
-                parts.push(addr);
-            }
-            if let Some(addr) = v
-                .get("address")
-                .and_then(|a| a.get("line2"))
-                .and_then(|l| l.as_str())
-            {
-                parts.push(addr);
-            }
-            if let Some(city) = v
-                .get("city")
-                .and_then(|c| c.get("name"))
-                .and_then(|n| n.as_str())
-            {
-                parts.push(city);
-            }
-            if let Some(state) = v
-                .get("state")
-                .and_then(|s| s.get("stateCode"))
-                .and_then(|s| s.as_str())
-            {
-                parts.push(state);
-            }
-            if let Some(zip) = v.get("postalCode").and_then(|z| z.as_str()) {
-                parts.push(zip);
-            }
-            if parts.is_empty() {
-                None
-            } else {
-                Some(parts.join(", "))
-            }
-        })
-        .flatten();
+    let venue_address = venue.and_then(|v| {
+        let mut parts = Vec::new();
+        if let Some(addr) = v
+            .get("address")
+            .and_then(|a| a.get("line1"))
+            .and_then(|l| l.as_str())
+        {
+            parts.push(addr);
+        }
+        if let Some(addr) = v
+            .get("address")
+            .and_then(|a| a.get("line2"))
+            .and_then(|l| l.as_str())
+        {
+            parts.push(addr);
+        }
+        if let Some(city) = v
+            .get("city")
+            .and_then(|c| c.get("name"))
+            .and_then(|n| n.as_str())
+        {
+            parts.push(city);
+        }
+        if let Some(state) = v
+            .get("state")
+            .and_then(|s| s.get("stateCode"))
+            .and_then(|s| s.as_str())
+        {
+            parts.push(state);
+        }
+        if let Some(zip) = v.get("postalCode").and_then(|z| z.as_str()) {
+            parts.push(zip);
+        }
+        if parts.is_empty() {
+            None
+        } else {
+            Some(parts.join(", "))
+        }
+    });
 
     let start_time = event
         .get("dates")
         .and_then(|d| d.get("start"))
         .and_then(|s| s.get("dateTime").or_else(|| s.get("localDate")))
         .and_then(|t| t.as_str())
-        .and_then(|t| parse_time(t))
+        .and_then(parse_time)
         .ok_or_else(|| IngestionError::Parse("Missing or unparseable startTime".to_owned()))?;
 
     let artists = event

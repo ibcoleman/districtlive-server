@@ -82,7 +82,7 @@ impl CometPingPongScraper {
                 .unwrap_or_default();
 
             let start_time = parse_comet_datetime(&date_text, &time_text)
-                .unwrap_or_else(|| OffsetDateTime::now_utc());
+                .unwrap_or_else(OffsetDateTime::now_utc);
 
             let event = RawEvent {
                 source_type: SourceType::VenueScraper,

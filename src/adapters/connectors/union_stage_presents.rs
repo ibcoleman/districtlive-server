@@ -68,7 +68,7 @@ impl UnionStagePresentsScraper {
                 .unwrap_or_default();
 
             let start_time =
-                parse_union_stage_datetime(&date_text).unwrap_or_else(|| OffsetDateTime::now_utc());
+                parse_union_stage_datetime(&date_text).unwrap_or_else(OffsetDateTime::now_utc);
 
             let venue_name = "Union Stage".to_owned();
             let venue_address = Some("740 11th St NW, Washington, DC 20001".to_owned());
