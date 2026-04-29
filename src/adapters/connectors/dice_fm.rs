@@ -13,13 +13,20 @@ use crate::{
 };
 
 pub struct DiceFmConnector {
-    #[allow(dead_code)]
     client: Client,
+    venue_slugs: Vec<String>,
 }
 
 impl DiceFmConnector {
-    pub fn new(client: Client) -> Self {
-        Self { client }
+    /// Create a new DiceFmConnector. Returns None if venue_slugs is empty.
+    pub fn new(client: Client, venue_slugs: Vec<String>) -> Option<Self> {
+        if venue_slugs.is_empty() {
+            return None;
+        }
+        Some(Self {
+            client,
+            venue_slugs,
+        })
     }
 
     /// Parse HTML with JSON-LD blocks into RawEvents. Used by both fetch() and tests.
@@ -73,9 +80,41 @@ impl SourceConnector for DiceFmConnector {
     }
 
     async fn fetch(&self) -> Result<Vec<RawEvent>, IngestionError> {
-        // Dice.fm requires multiple venue requests. For now, we'll return empty.
-        // In full implementation, iterate over configured venue slugs.
-        Ok(vec![])
+        let mut all_events = Vec::new();
+
+        for slug in &self.venue_slugs {
+            let url = format!("https://dice.fm/venue/{}", slug);
+            match self.client.get(&url).send().await {
+                Ok(response) => match response.text().await {
+                    Ok(html) => match Self::parse_html(&html, slug) {
+                        Ok(events) => all_events.extend(events),
+                        Err(e) => {
+                            tracing::warn!(
+                                error = %e,
+                                venue = %slug,
+                                "Failed to parse Dice.fm venue page"
+                            );
+                        }
+                    },
+                    Err(e) => {
+                        tracing::warn!(
+                            error = %e,
+                            venue = %slug,
+                            "Failed to read Dice.fm response body"
+                        );
+                    }
+                },
+                Err(e) => {
+                    tracing::warn!(
+                        error = %e,
+                        venue = %slug,
+                        "Failed to fetch Dice.fm venue"
+                    );
+                }
+            }
+        }
+
+        Ok(all_events)
     }
 
     fn health_check(&self) -> bool {

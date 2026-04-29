@@ -1,3 +1,4 @@
+use anyhow::Context;
 use districtlive_server::{
     adapters::{
         connect, PgArtistRepository, PgEventRepository, PgFeaturedEventRepository,
@@ -29,7 +30,7 @@ async fn main() -> anyhow::Result<()> {
             env!("CARGO_PKG_VERSION")
         ))
         .build()
-        .expect("Failed to build HTTP client");
+        .context("failed to build HTTP client")?;
 
     let events_repo = Arc::new(PgEventRepository::new(pool.clone()));
     let sources_repo = Arc::new(PgSourceRepository::new(pool.clone()));
@@ -59,12 +60,67 @@ async fn main() -> anyhow::Result<()> {
         sources: sources_repo,
         ingestion_runs: ingestion_runs_repo,
         http_client: http_client.clone(),
-        ingestion_orchestrator,
-        connectors,
+        ingestion_orchestrator: ingestion_orchestrator.clone(),
+        connectors: connectors.clone(),
     };
 
+    // Start ingestion scheduler if enabled
+    if config.ingestion_enabled {
+        if let Some(orchestrator) = ingestion_orchestrator {
+            let api_connectors: Vec<Arc<dyn districtlive_server::ports::SourceConnector>> =
+                connectors
+                    .iter()
+                    .filter(|c| {
+                        matches!(
+                            c.source_type(),
+                            districtlive_server::domain::source::SourceType::TicketmasterApi
+                                | districtlive_server::domain::source::SourceType::BandsinTownApi
+                                | districtlive_server::domain::source::SourceType::DiceFm
+                        )
+                    })
+                    .cloned()
+                    .collect();
+            let scraper_connectors: Vec<Arc<dyn districtlive_server::ports::SourceConnector>> =
+                connectors
+                    .iter()
+                    .filter(|c| {
+                        matches!(
+                            c.source_type(),
+                            districtlive_server::domain::source::SourceType::VenueScraper
+                        )
+                    })
+                    .cloned()
+                    .collect();
+            let cfg = config.clone();
+            tokio::spawn(async move {
+                if let Err(e) =
+                    districtlive_server::ingestion::scheduler::start_ingestion_scheduler(
+                        cfg,
+                        orchestrator,
+                        api_connectors,
+                        scraper_connectors,
+                    )
+                    .await
+                {
+                    tracing::error!(error = %e, "Failed to start ingestion scheduler");
+                }
+            });
+        }
+    }
+
     let bind_addr = config.bind_addr;
-    let app = create_router(state);
+    let app = create_router(AppState {
+        config: config.clone(),
+        venues: state.venues.clone(),
+        artists: state.artists.clone(),
+        events: state.events.clone(),
+        featured: state.featured.clone(),
+        sources: state.sources.clone(),
+        ingestion_runs: state.ingestion_runs.clone(),
+        http_client: state.http_client.clone(),
+        ingestion_orchestrator: state.ingestion_orchestrator.clone(),
+        connectors: state.connectors.clone(),
+    });
 
     let listener = tokio::net::TcpListener::bind(bind_addr).await?;
     info!(%bind_addr, "serving");
@@ -115,6 +171,9 @@ fn build_connectors(config: &Config, client: &reqwest::Client) -> (ConnectorList
         api_connectors.push(Arc::new(conn));
     }
     if let Some(conn) = BandsintownConnector::new(client.clone(), config) {
+        api_connectors.push(Arc::new(conn));
+    }
+    if let Some(conn) = DiceFmConnector::new(client.clone(), config.dicefm_venue_slugs.clone()) {
         api_connectors.push(Arc::new(conn));
     }
 

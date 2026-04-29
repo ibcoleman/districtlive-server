@@ -4,6 +4,7 @@ use async_trait::async_trait;
 use reqwest::Client;
 use rust_decimal::Decimal;
 use scraper::{Html, Selector};
+use std::str::FromStr;
 use time::OffsetDateTime;
 
 use crate::{
@@ -81,8 +82,13 @@ impl CometPingPongScraper {
                 .map(str::to_owned)
                 .unwrap_or_default();
 
-            let start_time = parse_comet_datetime(&date_text, &time_text)
-                .unwrap_or_else(OffsetDateTime::now_utc);
+            let start_time = match parse_comet_datetime(&date_text, &time_text) {
+                Some(t) => t,
+                None => {
+                    tracing::warn!(date = %date_text, "Skipping comet event: cannot parse date");
+                    continue;
+                }
+            };
 
             let event = RawEvent {
                 source_type: SourceType::VenueScraper,
@@ -112,9 +118,29 @@ impl CometPingPongScraper {
     }
 
     /// Enrich a partial RawEvent with detail page data (price, description).
-    pub fn parse_detail(_html: &str, _event: &mut RawEvent) {
-        // Detail page parsing would extract price and description
-        // For now, this is a placeholder
+    pub fn parse_detail(html: &str, event: &mut RawEvent) {
+        let document = Html::parse_document(html);
+
+        // Extract price from .uui-event_tickets-wrapper
+        if let Ok(price_sel) = Selector::parse(".uui-event_tickets-wrapper") {
+            if let Some(price_elem) = document.select(&price_sel).next() {
+                let price_text = price_elem.text().collect::<String>().trim().to_owned();
+                if let Ok(price) = rust_decimal::Decimal::from_str(&price_text.replace('$', "")) {
+                    event.min_price = Some(price);
+                    event.max_price = Some(price);
+                }
+            }
+        }
+
+        // Extract description from .confirm-description
+        if let Ok(desc_sel) = Selector::parse(".confirm-description") {
+            if let Some(desc_elem) = document.select(&desc_sel).next() {
+                let desc = desc_elem.text().collect::<String>().trim().to_owned();
+                if !desc.is_empty() {
+                    event.description = Some(desc);
+                }
+            }
+        }
     }
 }
 
@@ -169,7 +195,7 @@ fn parse_comet_datetime(date_text: &str, _time_text: &str) -> Option<OffsetDateT
     // Date format: "MMMM d, yyyy" (e.g. "March 21, 2026")
     let fmt = time::macros::format_description!("[month repr:long] [day], [year]");
     time::Date::parse(date_text, fmt).ok().map(|date| {
-        let time = time::Time::from_hms(20, 0, 0).unwrap();
+        let time = time::Time::from_hms(20, 0, 0).unwrap_or(time::Time::MIDNIGHT);
         OffsetDateTime::new_utc(date, time)
     })
 }

@@ -160,7 +160,7 @@ fn parse_seven_drum_city_date(date_str: &str, time_text: &str) -> Option<OffsetD
         let fmt_time = time::macros::format_description!("[hour repr:12]:[minute] [period]");
         time::Time::parse(time_text, fmt_time)
             .ok()
-            .unwrap_or_else(|| time::Time::from_hms(20, 0, 0).unwrap())
+            .unwrap_or_else(|| time::Time::from_hms(20, 0, 0).unwrap_or(time::Time::MIDNIGHT))
     };
 
     Some(OffsetDateTime::new_utc(date, time))

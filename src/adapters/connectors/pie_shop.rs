@@ -4,6 +4,7 @@ use async_trait::async_trait;
 use reqwest::Client;
 use rust_decimal::Decimal;
 use scraper::{Html, Selector};
+use std::str::FromStr;
 use time::OffsetDateTime;
 
 use crate::{
@@ -71,8 +72,13 @@ impl PieShopScraper {
                 .map(str::to_owned)
                 .unwrap_or_default();
 
-            let start_time =
-                parse_pie_shop_datetime(&date_text).unwrap_or_else(OffsetDateTime::now_utc);
+            let start_time = match parse_pie_shop_datetime(&date_text) {
+                Some(t) => t,
+                None => {
+                    tracing::warn!(date = %date_text, "Skipping pie shop event: cannot parse date");
+                    continue;
+                }
+            };
 
             let event = RawEvent {
                 source_type: SourceType::VenueScraper,
@@ -102,8 +108,30 @@ impl PieShopScraper {
     }
 
     /// Enrich a partial RawEvent with detail page data.
-    pub fn parse_detail(_html: &str, _event: &mut RawEvent) {
-        // Detail page parsing would extract price and description
+    pub fn parse_detail(html: &str, event: &mut RawEvent) {
+        let document = Html::parse_document(html);
+
+        // Extract price from opendate-widget price attribute
+        if let Ok(widget_sel) = Selector::parse("opendate-widget[price]") {
+            if let Some(widget_elem) = document.select(&widget_sel).next() {
+                if let Some(price_attr) = widget_elem.value().attr("price") {
+                    if let Ok(price) = rust_decimal::Decimal::from_str(price_attr) {
+                        event.min_price = Some(price);
+                        event.max_price = Some(price);
+                    }
+                }
+            }
+        }
+
+        // Extract description from .confirm-description
+        if let Ok(desc_sel) = Selector::parse(".confirm-description") {
+            if let Some(desc_elem) = document.select(&desc_sel).next() {
+                let desc = desc_elem.text().collect::<String>().trim().to_owned();
+                if !desc.is_empty() {
+                    event.description = Some(desc);
+                }
+            }
+        }
     }
 }
 

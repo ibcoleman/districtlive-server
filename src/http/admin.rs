@@ -85,15 +85,45 @@ pub async fn trigger_source_ingestion(
     State(state): State<AppState>,
     Path(source_id): Path<Uuid>,
 ) -> Result<Json<serde_json::Value>, ApiError> {
+    use crate::domain::source::SourceId;
+
     if !state.config.ingestion_enabled {
         return Err(ApiError::Ingestion(
             crate::domain::error::IngestionError::Disabled,
         ));
     }
-    Ok(Json(json!({
-        "status": "triggered",
-        "source_id": source_id.to_string()
-    })))
+
+    let orchestrator = state
+        .ingestion_orchestrator
+        .as_ref()
+        .ok_or_else(|| ApiError::Internal("Orchestrator not configured".into()))?;
+
+    // Look up the source by ID
+    let source = state.sources.find_by_id(SourceId(source_id)).await?;
+
+    // Find matching connector for this source
+    let connector = state
+        .connectors
+        .iter()
+        .find(|c| c.source_id() == source.name)
+        .ok_or_else(|| {
+            ApiError::Internal(format!("No connector found for source '{}'", source.name))
+        })?;
+
+    // Run the connector
+    match orchestrator.run_connector(connector.as_ref()).await {
+        Ok(stats) => Ok(Json(json!({
+            "status": "complete",
+            "events_fetched": stats.events_fetched,
+            "events_created": stats.events_created,
+            "events_updated": stats.events_updated,
+            "events_deduplicated": stats.events_deduplicated,
+        }))),
+        Err(e) => {
+            tracing::error!(error = %e, source_id = %source_id, "Connector failed during manual trigger");
+            Err(ApiError::Internal(format!("Connector failed: {}", e)))
+        }
+    }
 }
 
 pub async fn get_featured_history(

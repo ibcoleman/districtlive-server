@@ -125,7 +125,12 @@ fn seven_drum_city_parses_fixture() {
 #[test]
 fn union_stage_presents_parses_listing_fixture() {
     let html = include_str!(concat!("fixtures/union-stage-presents-listing.html"));
-    let events = UnionStagePresentsScraper::parse_listing(html, "union-stage");
+    let events = UnionStagePresentsScraper::parse_listing(
+        html,
+        "union-stage",
+        "Union Stage",
+        "740 Water St SW, Washington, DC 20024",
+    );
     assert!(
         !events.is_empty(),
         "UnionStagePresents: Should parse ≥1 event"

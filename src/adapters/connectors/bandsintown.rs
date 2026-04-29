@@ -22,12 +22,11 @@ pub struct BandsintownConnector {
 impl BandsintownConnector {
     pub fn new(client: Client, config: &Config) -> Option<Self> {
         config.bandsintown_app_id.as_ref().map(|app_id| {
-            // Default seed artists for DC area (from Kotlin source)
+            // Seed artists for DC area (from Kotlin source: application.yml)
             let seed_artists = vec![
-                "Local Native".to_owned(),
-                "The National".to_owned(),
-                "Bon Iver".to_owned(),
-                "Thao".to_owned(),
+                "Fugazi".to_owned(),
+                "Bad Brains".to_owned(),
+                "Minor Threat".to_owned(),
             ];
 
             Self {

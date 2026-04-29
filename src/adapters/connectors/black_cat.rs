@@ -60,6 +60,15 @@ impl BlackCatScraper {
                 IngestionError::Parse(format!("Cannot parse date: {}", date_text))
             })?;
 
+            let ticket_url = Selector::parse("div.show-details > a[href*='etix.com']")
+                .ok()
+                .and_then(|sel| {
+                    show.select(&sel)
+                        .next()
+                        .and_then(|a| a.value().attr("href"))
+                        .map(str::to_owned)
+                });
+
             events.push(RawEvent {
                 source_type: SourceType::VenueScraper,
                 source_identifier: Some(generate_source_id(&title, &date_text)),
@@ -74,11 +83,7 @@ impl BlackCatScraper {
                 doors_time: None,
                 min_price: None,
                 max_price: None,
-                ticket_url: show
-                    .select(&Selector::parse("div.show-details > a[href*='etix.com']").unwrap())
-                    .next()
-                    .and_then(|a| a.value().attr("href"))
-                    .map(str::to_owned),
+                ticket_url,
                 image_url: None,
                 age_restriction: None,
                 genres: vec![],

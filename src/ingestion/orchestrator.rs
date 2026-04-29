@@ -110,7 +110,7 @@ impl IngestionOrchestrator {
     ) -> Result<IngestionStats, IngestionError> {
         // Step 1: Fetch
         let raw_events = connector.fetch().await?;
-        let events_fetched = raw_events.len() as i32;
+        let events_fetched = i32::try_from(raw_events.len()).unwrap_or(i32::MAX);
         tracing::info!(
             connector = connector.source_id(),
             count = events_fetched,
@@ -145,7 +145,7 @@ impl IngestionOrchestrator {
         // Step 4: Deduplicate
         let before_dedup = filtered.len();
         let deduped = self.deduplication.deduplicate(filtered);
-        let events_deduplicated = (before_dedup - deduped.len()) as i32;
+        let events_deduplicated = i32::try_from(before_dedup - deduped.len()).unwrap_or(i32::MAX);
 
         // Step 5: Upsert each event
         let mut events_created = 0;
