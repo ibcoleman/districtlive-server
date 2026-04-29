@@ -16,7 +16,7 @@ If your service does not need a browser UI:
 4. Delete `rust-embed` from `Cargo.toml` and rerun `just bazel-repin`.
 5. In `src/http/mod.rs`, replace the `Assets` serving code with a stub:
    ```rust
-   async fn root() -> &'static str { "rust-app-template (headless)" }
+   async fn root() -> &'static str { "districtlive-server (headless)" }
    // Router: .route("/", get(root))  — drop the /assets/*path route.
    ```
 6. Remove the `bazel run //frontend:lint` line from `just check`.

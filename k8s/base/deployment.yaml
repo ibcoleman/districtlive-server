@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rust-app-template
+  name: districtlive-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rust-app-template
+      app: districtlive-server
   template:
     metadata:
       labels:
-        app: rust-app-template
+        app: districtlive-server
     spec:
       securityContext:
         runAsNonRoot: true
@@ -21,7 +21,7 @@ spec:
           type: RuntimeDefault
       containers:
       - name: app
-        image: rust-app-template:dev
+        image: districtlive-server:dev
         securityContext:
           readOnlyRootFilesystem: true
           allowPrivilegeEscalation: false

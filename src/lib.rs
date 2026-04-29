@@ -1,4 +1,4 @@
-//! rust_app_template library crate.
+//! districtlive_server library crate.
 //!
 //! The hexagonal skeleton:
 //! * [`domain`]   — value types, no I/O.

@@ -1,9 +1,9 @@
 # Safety rail: refuse to run outside the local kind context.
-allow_k8s_contexts("kind-rust-app-template")
+allow_k8s_contexts("kind-districtlive-server")
 
 # Bazel builds the binary; the thin Dockerfile wraps it.
 custom_build(
-    ref = "rust-app-template:dev",
+    ref = "districtlive-server:dev",
     command = """
         (cd frontend && pnpm install --frozen-lockfile >/dev/null 2>&1 && pnpm build >/dev/null 2>&1) && \\
         bazel build //:app && \\
@@ -31,5 +31,5 @@ custom_build(
 
 k8s_yaml(kustomize("k8s/overlays/local"))
 
-k8s_resource("local-rust-app-template", port_forwards = ["8080:8080"])
+k8s_resource("local-districtlive-server", port_forwards = ["8080:8080"])
 k8s_resource("local-postgres", port_forwards = ["5432:5432"])

@@ -20,7 +20,7 @@ jobs:
           node-version: 22
       - run: rustup install 1.80
       - run: pnpm install --frozen-lockfile
-      - run: pnpm -F rust-app-template-frontend build
+      - run: pnpm -F districtlive-server-frontend build
       - run: cargo fmt --check
       - run: cargo clippy --all-targets -- -D warnings
       - run: bazel test //... --test_output=errors

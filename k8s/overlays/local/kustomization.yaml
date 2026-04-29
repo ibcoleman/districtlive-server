@@ -8,7 +8,7 @@ commonLabels:
 patches:
   - target:
       kind: Deployment
-      name: rust-app-template
+      name: districtlive-server
     patch: |-
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value

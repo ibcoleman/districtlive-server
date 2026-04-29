@@ -1,4 +1,7 @@
-use rust_app_template::{config::Config, http::{AppState, router}};
+use districtlive_server::{
+    config::Config,
+    http::{router, AppState},
+};
 use std::sync::Arc;
 use tokio::signal;
 use tracing::info;

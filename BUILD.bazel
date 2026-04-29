@@ -9,7 +9,7 @@ npm_link_all_packages(name = "node_modules")
 rust_library(
     name = "lib",
     srcs = glob(["src/**/*.rs"], exclude = ["src/main.rs"]),
-    crate_name = "rust_app_template",
+    crate_name = "districtlive_server",
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_env = {"SQLX_OFFLINE": "true"},
@@ -22,7 +22,7 @@ rust_library(
 rust_library(
     name = "lib_with_test_helpers",
     srcs = glob(["src/**/*.rs"], exclude = ["src/main.rs"]),
-    crate_name = "rust_app_template",
+    crate_name = "districtlive_server",
     crate_root = "src/lib.rs",
     edition = "2021",
     rustc_env = {"SQLX_OFFLINE": "true"},

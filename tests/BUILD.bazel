@@ -40,3 +40,8 @@ rust_test(
     ],
 )
 
+# AC1.1-AC1.4: Migration integration tests deferred to Phase 3.
+# Phase 1 does not verify schema correctness, seed data, or idempotent re-runs of migrations.
+# These will be added in Phase 3 when the first PostgreSQL adapter (Greeter port) is
+# implemented and the integration-test infrastructure is wired into the Bazel build.
+# See Phase 3 plan for details.

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-CLUSTER=rust-app-template
+CLUSTER=districtlive-server
 
 # Ensure frontend is built before bringing up Tilt.
 # This is critical for fresh clones where dist/ may not exist.

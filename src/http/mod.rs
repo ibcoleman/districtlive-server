@@ -1,5 +1,6 @@
 pub mod error;
 
+use crate::config::Config;
 use axum::{
     body::Body,
     extract::Path,
@@ -7,7 +8,6 @@ use axum::{
     response::{IntoResponse, Response},
     routing::get,
 };
-use crate::config::Config;
 use rust_embed::RustEmbed;
 use std::sync::Arc;
 use tower_http::trace::TraceLayer;

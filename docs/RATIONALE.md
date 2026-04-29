@@ -1,6 +1,6 @@
 # Architecture & Implementation Rationale
 
-This document explains the major design choices behind `rust-app-template` and what
+This document explains the major design choices behind `districtlive-server` and what
 the template trades away in exchange for them.
 
 ## 1. Why ports and adapters
@@ -150,7 +150,7 @@ Iteration 1 surfaced four template-side gaps:
    into the Bazel sandbox.
 
 All four were fixed in PR
-[#3](https://github.com/ibcoleman/rust-app-template/pull/3) and verified by re-running
+[#3](https://github.com/ibcoleman/districtlive-server/pull/3) and verified by re-running
 the full v2 verification chain against a simulated fresh clone. No new gaps surfaced
 in iteration 2; AC6.5 (zero template-side changes in a final iteration) was satisfied.
 

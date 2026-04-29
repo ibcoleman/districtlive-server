@@ -8,7 +8,6 @@ use anyhow::Context as _;
 use std::{env, net::SocketAddr};
 
 #[derive(Clone, Debug)]
-#[allow(dead_code, reason = "all fields used by Phase 4+")]
 pub struct Config {
     // --- Core ---
     pub database_url: String,
@@ -61,10 +60,8 @@ impl Config {
                 .unwrap_or_else(|_| "0.0.0.0:8080".to_owned())
                 .parse::<SocketAddr>()
                 .context("Invalid BIND_ADDR — expected format: host:port")?,
-            admin_username: env::var("ADMIN_USERNAME")
-                .unwrap_or_else(|_| "admin".to_owned()),
-            admin_password: env::var("ADMIN_PASSWORD")
-                .unwrap_or_else(|_| "changeme".to_owned()),
+            admin_username: env::var("ADMIN_USERNAME").unwrap_or_else(|_| "admin".to_owned()),
+            admin_password: env::var("ADMIN_PASSWORD").unwrap_or_else(|_| "changeme".to_owned()),
             ingestion_enabled: bool_flag("INGESTION_ENABLED"),
             ingestion_api_cron: env::var("INGESTION_API_CRON")
                 .unwrap_or_else(|_| "0 0 */6 * * *".to_owned()),
@@ -96,6 +93,36 @@ impl Config {
     }
 }
 
+/// Test-only constructor with sensible defaults. Avoids reading environment variables.
+///
+/// Used by `tests/support/mod.rs` to build a test AppState without live config.
+/// `SocketAddr` does not implement `Default`, so a blanket `#[derive(Default)]` will not
+/// compile — this method is the intended substitute.
+#[cfg(any(test, feature = "test-helpers"))]
+impl Config {
+    pub fn test_default() -> Self {
+        Self {
+            database_url: "postgres://test:test@localhost/test".to_owned(),
+            bind_addr: "127.0.0.1:0".parse().expect("valid addr"),
+            admin_username: "testuser".to_owned(),
+            admin_password: "testpass".to_owned(),
+            ingestion_enabled: false,
+            ingestion_api_cron: "0 0 * * * *".to_owned(),
+            ingestion_scraper_cron: "0 0 * * * *".to_owned(),
+            ticketmaster_api_key: None,
+            bandsintown_app_id: None,
+            dicefm_venue_slugs: vec![],
+            enrichment_enabled: false,
+            enrichment_cron: "0 0 * * * *".to_owned(),
+            musicbrainz_confidence_threshold: 0.9,
+            spotify_enabled: false,
+            spotify_client_id: None,
+            spotify_client_secret: None,
+            discord_webhook_url: None,
+        }
+    }
+}
+
 fn required(name: &str) -> anyhow::Result<String> {
     env::var(name)
         .map_err(|_| anyhow::anyhow!("Required environment variable `{}` is not set", name))
@@ -104,35 +131,10 @@ fn required(name: &str) -> anyhow::Result<String> {
 /// Returns `true` if the env var is set to `"true"`, `"1"`, or `"yes"` (case-insensitive).
 fn bool_flag(name: &str) -> bool {
     matches!(
-        env::var(name).as_deref().map(str::to_ascii_lowercase).as_deref(),
+        env::var(name)
+            .as_deref()
+            .map(str::to_ascii_lowercase)
+            .as_deref(),
         Ok("true") | Ok("1") | Ok("yes")
     )
-}
-
-/// Test-only constructor with sensible defaults. Avoids reading environment variables.
-///
-/// Used by `tests/support/mod.rs` to build a test AppState without live config.
-/// `SocketAddr` does not implement `Default`, so a blanket `#[derive(Default)]` will not
-/// compile — this method is the intended substitute.
-#[cfg(any(test, feature = "test-helpers"))]
-pub fn test_default() -> Self {
-    Self {
-        database_url: "postgres://test:test@localhost/test".to_owned(),
-        bind_addr: "127.0.0.1:0".parse().expect("valid addr"),
-        admin_username: "testuser".to_owned(),
-        admin_password: "testpass".to_owned(),
-        ingestion_enabled: false,
-        ingestion_api_cron: "0 0 * * * *".to_owned(),
-        ingestion_scraper_cron: "0 0 * * * *".to_owned(),
-        ticketmaster_api_key: None,
-        bandsintown_app_id: None,
-        dicefm_venue_slugs: vec![],
-        enrichment_enabled: false,
-        enrichment_cron: "0 0 * * * *".to_owned(),
-        musicbrainz_confidence_threshold: 0.9,
-        spotify_enabled: false,
-        spotify_client_id: None,
-        spotify_client_secret: None,
-        discord_webhook_url: None,
-    }
 }

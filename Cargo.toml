@@ -1,5 +1,5 @@
 [package]
-name = "rust_app_template"
+name = "districtlive_server"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.85"
@@ -31,6 +31,24 @@ uuid = { version = "1", features = ["v4", "serde"] }
 time = { version = "0.3", features = ["formatting", "serde"] }
 rust-embed = { version = "8.11", features = ["compression", "debug-embed", "deterministic-timestamps"] }
 mime_guess = "2"
+
+# HTML scraping — venue website connectors (Phase 5)
+scraper = "0.26"
+
+# Async HTTP client — all connectors and enrichers (Phase 5+)
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+# Cron-scheduled async tasks — ingestion and enrichment schedulers (Phase 5+)
+tokio-cron-scheduler = "0.13"
+
+# Additional Axum utilities — TypedHeader for Basic auth (Phase 4)
+axum-extra = { version = "0.10", features = ["typed-header"] }
+
+# Exact decimal arithmetic — price/money fields (Phase 2+)
+rust_decimal = { version = "1", features = ["serde"] }
+
+# Base64 encoding — used by Basic auth test helpers (Phase 4 tests)
+base64 = "0.22"
 
 [dev-dependencies]
 axum-test = "17"

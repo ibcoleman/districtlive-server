@@ -1,5 +1,5 @@
 {
-  "name": "rust-app-template-frontend",
+  "name": "districtlive-server-frontend",
   "private": true,
   "type": "module",
   "scripts": {

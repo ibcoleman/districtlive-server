@@ -20,7 +20,7 @@ dev:
 
 # Delete the kind cluster entirely.
 reset-cluster:
-    kind delete cluster --name rust-app-template || true
+    kind delete cluster --name districtlive-server || true
 
 # Tail logs from a cluster component. Run without args to list available components.
 logs component="":
