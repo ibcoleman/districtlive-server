@@ -1,0 +1,86 @@
+[
+  {
+    "id": 123456,
+    "name": "Band Name 1",
+    "url": "https://www.bandsintown.com/a/123456",
+    "image_url": "https://example.com/band1.jpg",
+    "thumb_url": "https://example.com/band1-thumb.jpg",
+    "facebook_page_url": "https://www.facebook.com/band1",
+    "mbid": null,
+    "tracker_count": 100,
+    "upcoming_event_count": 5,
+    "offers": [],
+    "links": [],
+    "description": "An example band",
+    "datetime": "2026-05-10T23:00:00",
+    "title": "Band Name 1",
+    "formatted_datetime": "May 10, 2026",
+    "artists": [
+      {
+        "id": 123456,
+        "name": "Band Name 1",
+        "url": "https://www.bandsintown.com/a/123456",
+        "image_url": "https://example.com/band1.jpg",
+        "thumb_url": "https://example.com/band1-thumb.jpg",
+        "facebook_page_url": "https://www.facebook.com/band1",
+        "mbid": null,
+        "tracker_count": 100,
+        "upcoming_event_count": 5
+      }
+    ],
+    "venue": {
+      "id": 789,
+      "name": "The Fillmore",
+      "url": "https://www.bandsintown.com/v/789",
+      "city": "Washington",
+      "region": "DC",
+      "country": "United States",
+      "latitude": 38.7964,
+      "longitude": -77.0428
+    },
+    "lineup": ["Band Name 1"],
+    "id": "123456789"
+  },
+  {
+    "id": 234567,
+    "name": "Another Band",
+    "url": "https://www.bandsintown.com/a/234567",
+    "image_url": "https://example.com/band2.jpg",
+    "thumb_url": "https://example.com/band2-thumb.jpg",
+    "facebook_page_url": "https://www.facebook.com/band2",
+    "mbid": null,
+    "tracker_count": 200,
+    "upcoming_event_count": 3,
+    "offers": [],
+    "links": [],
+    "description": "Another example band",
+    "datetime": "2026-05-15T22:00:00",
+    "title": "Another Band",
+    "formatted_datetime": "May 15, 2026",
+    "artists": [
+      {
+        "id": 234567,
+        "name": "Another Band",
+        "url": "https://www.bandsintown.com/a/234567",
+        "image_url": "https://example.com/band2.jpg",
+        "thumb_url": "https://example.com/band2-thumb.jpg",
+        "facebook_page_url": "https://www.facebook.com/band2",
+        "mbid": null,
+        "tracker_count": 200,
+        "upcoming_event_count": 3
+      }
+    ],
+    "venue": {
+      "id": 790,
+      "name": "9:30 Club",
+      "url": "https://www.bandsintown.com/v/790",
+      "city": "Washington",
+      "region": "DC",
+      "country": "United States",
+      "latitude": 38.8080,
+      "longitude": -77.0268
+    },
+    "lineup": ["Another Band"],
+    "id": "234567890"
+  }
+]
