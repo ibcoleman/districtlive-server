@@ -5,7 +5,10 @@ use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 use uuid::Uuid;
 
-use crate::domain::{event::EventId, source::{SourceId, SourceType}};
+use crate::domain::{
+    event::EventId,
+    source::{SourceId, SourceType},
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(transparent)]

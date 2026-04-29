@@ -29,7 +29,10 @@ pub trait EventRepository: Send + Sync {
         filters: EventFilters,
         page: Pagination,
     ) -> Result<Page<Event>, RepoError>;
-    async fn find_by_venue_id(&self, venue_id: crate::domain::venue::VenueId) -> Result<Vec<Event>, RepoError>;
+    async fn find_by_venue_id(
+        &self,
+        venue_id: crate::domain::venue::VenueId,
+    ) -> Result<Vec<Event>, RepoError>;
 
     /// Find upcoming events at the same venue within ±7 days of the given event.
     async fn find_related_events(

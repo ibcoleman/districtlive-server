@@ -18,5 +18,8 @@ pub trait IngestionRunRepository: Send + Sync {
         events_deduplicated: i32,
     ) -> Result<(), RepoError>;
     async fn mark_failed(&self, id: IngestionRunId, error_message: &str) -> Result<(), RepoError>;
-    async fn find_by_source_id_desc(&self, source_id: SourceId) -> Result<Vec<IngestionRun>, RepoError>;
+    async fn find_by_source_id_desc(
+        &self,
+        source_id: SourceId,
+    ) -> Result<Vec<IngestionRun>, RepoError>;
 }

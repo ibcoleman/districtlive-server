@@ -14,8 +14,5 @@ pub trait ArtistEnricher: Send + Sync {
     ///
     /// Returns `Ok(None)` if no match is found (not an error — just unknown artist).
     /// Returns `Err` only for transient failures (HTTP errors, rate limits).
-    async fn enrich(
-        &self,
-        name: &str,
-    ) -> Result<Option<EnrichmentResult>, EnrichmentError>;
+    async fn enrich(&self, name: &str) -> Result<Option<EnrichmentResult>, EnrichmentError>;
 }

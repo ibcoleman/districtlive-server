@@ -1,10 +1,6 @@
 use async_trait::async_trait;
 
-use crate::domain::{
-    error::IngestionError,
-    event::RawEvent,
-    source::SourceType,
-};
+use crate::domain::{error::IngestionError, event::RawEvent, source::SourceType};
 
 #[async_trait]
 pub trait SourceConnector: Send + Sync {
