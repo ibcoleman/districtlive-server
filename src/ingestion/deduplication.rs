@@ -53,10 +53,7 @@ impl DeduplicationService {
         // Primary match: same venue + high title similarity
         let same_venue = a.raw.venue_name.to_lowercase() == b.raw.venue_name.to_lowercase();
         if same_venue {
-            let similarity = jaro_winkler(
-                &a.raw.title.to_lowercase(),
-                &b.raw.title.to_lowercase(),
-            );
+            let similarity = jaro_winkler(&a.raw.title.to_lowercase(), &b.raw.title.to_lowercase());
             if similarity >= SIMILARITY_THRESHOLD {
                 return true;
             }
@@ -64,9 +61,10 @@ impl DeduplicationService {
 
         // Secondary match: shared artist name
         let has_shared_artist = a.raw.artist_names.iter().any(|artist_a| {
-            b.raw.artist_names.iter().any(|artist_b| {
-                artist_a.to_lowercase() == artist_b.to_lowercase()
-            })
+            b.raw
+                .artist_names
+                .iter()
+                .any(|artist_b| artist_a.to_lowercase() == artist_b.to_lowercase())
         });
 
         has_shared_artist
@@ -82,7 +80,8 @@ fn merge_group(mut group: Vec<NormalizedEvent>) -> DeduplicatedEvent {
 
     // Sort by confidence score descending — highest confidence becomes canonical
     group.sort_by(|a, b| {
-        b.raw.confidence_score
+        b.raw
+            .confidence_score
             .partial_cmp(&a.raw.confidence_score)
             .unwrap_or(std::cmp::Ordering::Equal)
     });
@@ -112,7 +111,10 @@ fn merge_group(mut group: Vec<NormalizedEvent>) -> DeduplicatedEvent {
     let mut merged = canonical;
     merged.raw.artist_names = all_artists;
 
-    DeduplicatedEvent { event: merged, sources }
+    DeduplicatedEvent {
+        event: merged,
+        sources,
+    }
 }
 
 fn attribution_from(event: &NormalizedEvent) -> crate::domain::event_source::SourceAttribution {

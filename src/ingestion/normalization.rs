@@ -47,8 +47,7 @@ impl NormalizationService {
     /// Returns `true` if the title is a known placeholder (should be filtered out before upsert).
     pub fn is_placeholder(title: &str) -> bool {
         let normalized = title.trim().to_lowercase();
-        PLACEHOLDER_TITLES.contains(&normalized.as_str())
-            || normalized.starts_with("sold out:")
+        PLACEHOLDER_TITLES.contains(&normalized.as_str()) || normalized.starts_with("sold out:")
     }
 }
 
@@ -74,8 +73,8 @@ pub fn generate_slug(title: &str, venue_name: &str, start_time: OffsetDateTime) 
 /// Convert `OffsetDateTime` to `yyyy-MM-dd` in America/New_York timezone.
 pub fn date_in_eastern_time_str(dt: OffsetDateTime) -> String {
     let unix_ts = dt.unix_timestamp();
-    let chrono_utc = chrono::DateTime::<chrono::Utc>::from_timestamp(unix_ts, 0)
-        .unwrap_or_default();
+    let chrono_utc =
+        chrono::DateTime::<chrono::Utc>::from_timestamp(unix_ts, 0).unwrap_or_default();
     let et = chrono_utc.with_timezone(&New_York);
     et.format("%Y-%m-%d").to_string()
 }
