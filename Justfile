@@ -72,7 +72,7 @@ fe-build:
 # Note: test targets //tests:api and //tests:properties come online in Phase 2/3.
 # Until then, this recipe will fail with a bazel error (expected state for Phase 1).
 test: fe-build
-    bazel test //tests:api //tests:properties --test_output=errors
+    bazel test //tests:api //tests:properties //tests:connector_tests --test_output=errors
 
 test-integration:
     bazel test //tests:integration_db --test_env=DATABASE_URL=${DATABASE_URL:-postgres://app:app@localhost:5432/app} --test_arg=--ignored --test_output=all
