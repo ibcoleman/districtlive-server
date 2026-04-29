@@ -1,6 +1,10 @@
 pub mod error;
 
 use crate::config::Config;
+use crate::ports::{
+    ArtistRepository, EventRepository, FeaturedEventRepository, IngestionRunRepository,
+    SourceRepository, VenueRepository,
+};
 use axum::{
     body::Body,
     extract::Path,
@@ -19,6 +23,12 @@ struct Assets;
 #[derive(Clone)]
 pub struct AppState {
     pub config: Arc<Config>,
+    pub venues: Arc<dyn VenueRepository>,
+    pub artists: Arc<dyn ArtistRepository>,
+    pub events: Arc<dyn EventRepository>,
+    pub featured: Arc<dyn FeaturedEventRepository>,
+    pub sources: Arc<dyn SourceRepository>,
+    pub ingestion_runs: Arc<dyn IngestionRunRepository>,
 }
 
 pub fn router(state: AppState) -> axum::Router {

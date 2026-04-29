@@ -1,1 +1,17 @@
-// Adapter implementations — will be populated in later phases.
+pub mod db;
+pub mod pg_artists;
+pub mod pg_events;
+pub mod pg_featured;
+pub mod pg_ingestion_runs;
+pub mod pg_sources;
+pub mod pg_venues;
+
+pub use db::connect;
+#[cfg(feature = "test-helpers")]
+pub use db::TestHelper;
+pub use pg_artists::PgArtistRepository;
+pub use pg_events::PgEventRepository;
+pub use pg_featured::PgFeaturedEventRepository;
+pub use pg_ingestion_runs::PgIngestionRunRepository;
+pub use pg_sources::PgSourceRepository;
+pub use pg_venues::PgVenueRepository;

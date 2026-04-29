@@ -1,4 +1,8 @@
 use districtlive_server::{
+    adapters::{
+        connect, PgArtistRepository, PgEventRepository, PgFeaturedEventRepository,
+        PgIngestionRunRepository, PgSourceRepository, PgVenueRepository,
+    },
     config::Config,
     http::{router, AppState},
 };
@@ -16,8 +20,19 @@ async fn main() -> anyhow::Result<()> {
         .init();
 
     let config = Arc::new(Config::from_env()?);
+    let pool = Arc::new(connect(&config.database_url).await?);
+
+    let state = AppState {
+        config: config.clone(),
+        venues: Arc::new(PgVenueRepository::new(pool.clone())),
+        artists: Arc::new(PgArtistRepository::new(pool.clone())),
+        events: Arc::new(PgEventRepository::new(pool.clone())),
+        featured: Arc::new(PgFeaturedEventRepository::new(pool.clone())),
+        sources: Arc::new(PgSourceRepository::new(pool.clone())),
+        ingestion_runs: Arc::new(PgIngestionRunRepository::new(pool.clone())),
+    };
+
     let bind_addr = config.bind_addr;
-    let state = AppState { config };
     let app = router(state);
 
     let listener = tokio::net::TcpListener::bind(bind_addr).await?;
