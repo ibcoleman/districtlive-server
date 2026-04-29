@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Mixed Events Venue | Dice</title></head>
+<body>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Place",
+  "name": "Test Venue",
+  "address": "456 Test Ave, Washington, DC 20002",
+  "event": [
+    {
+      "@type": "MusicEvent",
+      "name": "Valid Event",
+      "startDate": "2026-05-01T20:00:00-04:00",
+      "url": "https://dice.fm/event/valid1-valid-event-test-venue",
+      "image": ["https://cdn.dice.fm/valid-image.jpg"],
+      "offers": []
+    },
+    {
+      "@type": "MusicEvent",
+      "name": "",
+      "url": "https://dice.fm/event/bad1-blank-name"
+    },
+    {
+      "@type": "MusicEvent",
+      "url": "https://dice.fm/event/bad2-no-name-field"
+    }
+  ]
+}
+</script>
+</body>
+</html>

@@ -1,2 +1,6 @@
-// Ingestion pipeline — normalization, deduplication, orchestration, and scheduler.
-// Implemented in Phase 5.
+//! Ingestion pipeline — normalization, deduplication, orchestration, and scheduling.
+
+pub mod deduplication;
+pub mod normalization;
+pub mod orchestrator;
+pub mod scheduler;

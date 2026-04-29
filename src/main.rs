@@ -22,6 +22,15 @@ async fn main() -> anyhow::Result<()> {
     let config = Arc::new(Config::from_env()?);
     let pool = Arc::new(connect(&config.database_url).await?);
 
+    let http_client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(30))
+        .user_agent(format!(
+            "districtlive-server/{} (https://districtlive.com)",
+            env!("CARGO_PKG_VERSION")
+        ))
+        .build()
+        .expect("Failed to build HTTP client");
+
     let state = AppState {
         config: config.clone(),
         venues: Arc::new(PgVenueRepository::new(pool.clone())),
@@ -30,6 +39,7 @@ async fn main() -> anyhow::Result<()> {
         featured: Arc::new(PgFeaturedEventRepository::new(pool.clone())),
         sources: Arc::new(PgSourceRepository::new(pool.clone())),
         ingestion_runs: Arc::new(PgIngestionRunRepository::new(pool.clone())),
+        http_client,
     };
 
     let bind_addr = config.bind_addr;

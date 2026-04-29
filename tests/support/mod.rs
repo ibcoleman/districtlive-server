@@ -219,5 +219,6 @@ pub fn test_state() -> districtlive_server::http::AppState {
         featured: Arc::new(EmptyFeaturedRepository),
         sources: Arc::new(EmptySourceRepository),
         ingestion_runs: Arc::new(EmptyIngestionRunRepository),
+        http_client: reqwest::Client::new(),
     }
 }

@@ -37,6 +37,7 @@ pub struct AppState {
     pub featured: Arc<dyn FeaturedEventRepository>,
     pub sources: Arc<dyn SourceRepository>,
     pub ingestion_runs: Arc<dyn IngestionRunRepository>,
+    pub http_client: reqwest::Client,
 }
 
 pub fn create_router(state: AppState) -> axum::Router {

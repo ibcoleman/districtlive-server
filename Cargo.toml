@@ -51,6 +51,13 @@ rust_decimal = { version = "1", features = ["serde"] }
 # Base64 encoding — used by Basic auth test helpers (Phase 4 tests)
 base64 = "0.22"
 
+# Fuzzy string similarity for event deduplication (Jaro-Winkler)
+strsim = "0.11"
+
+# Timezone-aware date extraction for slug generation (America/New_York)
+chrono = "0.4"
+chrono-tz = "0.10"
+
 [dev-dependencies]
 axum-test = "17"
 proptest = "1"

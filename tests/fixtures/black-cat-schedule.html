@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Black Cat - Schedule</title>
+</head>
+<body>
+
+<!-- Event 1: Full fields — etix.com ticket, absolute image URL -->
+<div class="show">
+    <h1 class="headline"><a href="/events/foo-fighters-experience">The Foo Fighters Experience</a></h1>
+    <h2 class="date">Saturday February 21</h2>
+    <p class="show-text">Doors: 7pm | Show: 8pm | 18+</p>
+    <div class="show-details">
+        <a href="https://www.etix.com/ticket/p/12345/foo-fighters-experience">Buy Tickets</a>
+    </div>
+    <div class="band-photo-sm">
+        <img src="https://example.com/foo-fighters.jpg" alt="The Foo Fighters Experience">
+    </div>
+</div>
+
+<!-- Event 2: No ticket, no image -->
+<div class="show">
+    <h1 class="headline"><a href="/events/jazz-quartet">Jazz Quartet Thursday Night</a></h1>
+    <h2 class="date">Thursday February 26</h2>
+    <p class="show-text">Doors: 8pm | Show: 9pm</p>
+    <div class="show-details">
+    </div>
+</div>
+
+<!-- Event 3: No ticket, image with absolute URL -->
+<div class="show">
+    <h1 class="headline"><a href="/events/free-live-session">Free Live Session</a></h1>
+    <h2 class="date">Friday March 6</h2>
+    <p class="show-text">Free admission. All ages welcome.</p>
+    <div class="show-details">
+    </div>
+    <div class="band-photo-sm">
+        <img src="https://example.com/session.png" alt="Free Live Session">
+    </div>
+</div>
+
+<!-- Event 4: Malformed — blank title text, should be skipped -->
+<div class="show">
+    <h1 class="headline"><a href="/events/empty">   </a></h1>
+    <h2 class="date">Sunday March 8</h2>
+    <div class="show-details">
+    </div>
+</div>
+
+<!-- Event 5: etix.com ticket, no image -->
+<div class="show">
+    <h1 class="headline"><a href="/events/electronic-night">Electronic Night Series</a></h1>
+    <h2 class="date">Saturday March 14</h2>
+    <p class="show-text">Doors: 9pm | Show: 10pm | 21+</p>
+    <div class="show-details">
+        <a href="https://www.etix.com/ticket/p/67890/electronic-night-series">Buy Tickets</a>
+    </div>
+</div>
+
+</body>
+</html>
