@@ -47,10 +47,37 @@ pub async fn trigger_all_ingestion(
             crate::domain::error::IngestionError::Disabled,
         ));
     }
-    // Actual ingestion dispatch happens in Phase 5. For now return a placeholder.
+
+    let orchestrator = state
+        .ingestion_orchestrator
+        .as_ref()
+        .ok_or_else(|| ApiError::Internal("Orchestrator not configured".into()))?;
+
+    use crate::ingestion::orchestrator::IngestionStats;
+    let mut total = IngestionStats {
+        events_fetched: 0,
+        events_created: 0,
+        events_updated: 0,
+        events_deduplicated: 0,
+    };
+    for connector in &state.connectors {
+        match orchestrator.run_connector(connector.as_ref()).await {
+            Ok(stats) => {
+                total.events_fetched += stats.events_fetched;
+                total.events_created += stats.events_created;
+                total.events_updated += stats.events_updated;
+                total.events_deduplicated += stats.events_deduplicated;
+            }
+            Err(e) => tracing::error!(error = %e, "Connector failed during manual trigger"),
+        }
+    }
+
     Ok(Json(json!({
-        "status": "triggered",
-        "message": "Ingestion triggered. Results will be available in ingestion_runs."
+        "status": "complete",
+        "events_fetched": total.events_fetched,
+        "events_created": total.events_created,
+        "events_updated": total.events_updated,
+        "events_deduplicated": total.events_deduplicated,
     })))
 }
 

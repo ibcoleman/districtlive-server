@@ -10,3 +10,14 @@ pub mod rhizome_dc;
 pub mod seven_drum_city;
 pub mod ticketmaster;
 pub mod union_stage_presents;
+
+pub use bandsintown::BandsintownConnector;
+pub use black_cat::BlackCatScraper;
+pub use comet_ping_pong::CometPingPongScraper;
+pub use dc9::Dc9Scraper;
+pub use dice_fm::DiceFmConnector;
+pub use pie_shop::PieShopScraper;
+pub use rhizome_dc::RhizomeDcScraper;
+pub use seven_drum_city::SevenDrumCityScraper;
+pub use ticketmaster::TicketmasterConnector;
+pub use union_stage_presents::UnionStagePresentsScraper;

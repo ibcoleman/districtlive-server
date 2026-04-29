@@ -38,6 +38,9 @@ pub struct AppState {
     pub sources: Arc<dyn SourceRepository>,
     pub ingestion_runs: Arc<dyn IngestionRunRepository>,
     pub http_client: reqwest::Client,
+    pub ingestion_orchestrator:
+        Option<std::sync::Arc<crate::ingestion::orchestrator::IngestionOrchestrator>>,
+    pub connectors: Vec<std::sync::Arc<dyn crate::ports::SourceConnector>>,
 }
 
 pub fn create_router(state: AppState) -> axum::Router {

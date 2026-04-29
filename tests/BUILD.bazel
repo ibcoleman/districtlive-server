@@ -45,6 +45,28 @@ rust_test(
 )
 
 rust_test(
+    name = "connector_tests",
+    srcs = [
+        "connector_tests.rs",
+        "support/mod.rs",
+    ],
+    crate_root = "connector_tests.rs",
+    edition = "2021",
+    crate_features = ["test-helpers"],
+    data = glob(["fixtures/**"]),
+    rustc_env = {
+        "CARGO_MANIFEST_DIR": ".",
+        "SQLX_OFFLINE": "true",
+    },
+    deps = [
+        "//:lib_with_test_helpers",
+        "@crates//:rust_decimal",
+        "@crates//:time",
+    ],
+    proc_macro_deps = ["@crates//:async-trait"],
+)
+
+rust_test(
     name = "integration_db",
     srcs = ["integration_db.rs", "support/mod.rs"],
     crate_root = "integration_db.rs",
