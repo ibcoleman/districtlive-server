@@ -16,6 +16,7 @@ rust_test(
         "@crates//:axum",
         "@crates//:axum-test",
         "@crates//:base64",
+        "@crates//:reqwest",
         "@crates//:serde_json",
         "@crates//:tokio",
     ],
@@ -53,6 +54,7 @@ rust_test(
     rustc_env = {"SQLX_OFFLINE": "true"},
     deps = [
         "//:lib_with_test_helpers",
+        "@crates//:reqwest",
         "@crates//:sqlx",
         "@crates//:tokio",
         "@crates//:time",
