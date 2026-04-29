@@ -1,3 +1,4 @@
+pub mod dto;
 pub mod error;
 
 use crate::config::Config;
