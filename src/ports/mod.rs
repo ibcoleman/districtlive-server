@@ -1,3 +1,1 @@
-pub mod greeting;
-
-pub use greeting::{GreetError, GreetingPort};
+// Port traits — will be populated in later phases.

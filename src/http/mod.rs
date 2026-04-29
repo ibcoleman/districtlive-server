@@ -1,7 +1,4 @@
 pub mod error;
-pub mod greet;
-
-use std::sync::Arc;
 
 use axum::{
     body::Body,
@@ -14,23 +11,18 @@ use axum::{
 use rust_embed::RustEmbed;
 use tower_http::trace::TraceLayer;
 
-use crate::ports::GreetingPort;
-
 #[derive(RustEmbed)]
 #[folder = "frontend/dist/"]
 struct Assets;
 
 #[derive(Clone)]
-pub struct AppState {
-    pub greeter: Arc<dyn GreetingPort>,
-}
+pub struct AppState {}
 
 pub fn router(state: AppState) -> Router {
     Router::new()
         .route("/", get(index))
         .route("/assets/{*path}", get(asset))
         .route("/healthz", get(healthz))
-        .route("/api/greet", get(greet::handler))
         .layer(TraceLayer::new_for_http())
         .with_state(state)
 }

@@ -1,3 +1,1 @@
-pub mod static_greeter;
-
-pub use static_greeter::StaticGreeter;
+// Adapter implementations — will be populated in later phases.
