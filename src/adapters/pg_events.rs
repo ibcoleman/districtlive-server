@@ -144,7 +144,7 @@ impl EventRepository for PgEventRepository {
         .bind(cmd.doors_time)
         .bind(cmd.min_price)
         .bind(cmd.max_price)
-        .bind(cmd.price_tier.map(|p| p as i32))
+        .bind(cmd.price_tier)
         .bind(cmd.ticket_url.as_deref())
         .bind(cmd.image_url.as_deref())
         .bind(cmd.age_restriction as AgeRestriction)
@@ -173,11 +173,7 @@ impl EventRepository for PgEventRepository {
                 r#"INSERT INTO event_sources (id, event_id, source_type, source_identifier,
                                                source_url, confidence_score, source_id, created_at)
                    VALUES ($1, $2, $3, $4, $5, $6, $7, now())
-                   ON CONFLICT (event_id, source_type) DO UPDATE SET
-                       source_identifier = COALESCE(EXCLUDED.source_identifier, event_sources.source_identifier),
-                       source_url = COALESCE(EXCLUDED.source_url, event_sources.source_url),
-                       last_scraped_at = now(),
-                       confidence_score = EXCLUDED.confidence_score"#,
+                   ON CONFLICT DO NOTHING"#,
             )
             .bind(source_id)
             .bind(actual_event_id)
@@ -287,11 +283,9 @@ impl EventRepository for PgEventRepository {
             count_qb.push(" AND e.min_price <= ").push_bind(*price_max);
             qb.push(" AND e.min_price <= ").push_bind(*price_max);
         }
-        if let Some(_status) = &filters.status {
-            // Note: status filter requires proper enum conversion
-            // For now skip or handle with raw string
-            count_qb.push(" AND e.status = 'ACTIVE'");
-            qb.push(" AND e.status = 'ACTIVE'");
+        if let Some(status) = &filters.status {
+            count_qb.push(" AND e.status = ").push_bind(*status);
+            qb.push(" AND e.status = ").push_bind(*status);
         }
         if let Some(genre) = &filters.genre {
             count_qb.push(

@@ -42,7 +42,8 @@ impl VenueRepository for PgVenueRepository {
             r#"SELECT id, name, slug, address, neighborhood,
                       capacity, venue_type, website_url, display_name, display_slug,
                       created_at, updated_at
-               FROM venues WHERE slug = $1 OR display_slug = $1"#,
+               FROM venues WHERE slug = $1 OR display_slug = $1
+               ORDER BY id LIMIT 1"#,
         )
         .bind(slug)
         .fetch_optional(&*self.pool)

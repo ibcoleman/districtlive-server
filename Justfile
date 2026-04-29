@@ -75,7 +75,7 @@ test: fe-build
     bazel test //tests:api //tests:properties --test_output=errors
 
 test-integration:
-    bazel test //tests:integration_db --test_env=DATABASE_URL=${DATABASE_URL:-postgres://app:app@localhost:5432/app}
+    bazel test //tests:integration_db --test_env=DATABASE_URL=${DATABASE_URL:-postgres://app:app@localhost:5432/app} --test_arg=--ignored --test_output=all
 
 # Formatting, linting, and `just test` — matches CI.
 check: fe-build

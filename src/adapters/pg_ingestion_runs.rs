@@ -30,10 +30,8 @@ impl IngestionRunRepository for PgIngestionRunRepository {
     ) -> Result<IngestionRun, RepoError> {
         let id = Uuid::new_v4();
         let row = sqlx::query_as::<_, IngestionRunRow>(
-            r#"INSERT INTO ingestion_runs (id, source_id, status, events_fetched, events_created,
-                                           events_updated, events_deduplicated, error_message,
-                                           started_at, completed_at)
-               VALUES ($1, $2, 'RUNNING', 0, 0, 0, 0, NULL, now(), NULL)
+            r#"INSERT INTO ingestion_runs (id, source_id, started_at)
+               VALUES ($1, $2, now())
                RETURNING id, source_id, status, events_fetched, events_created,
                          events_updated, events_deduplicated, error_message, started_at, completed_at"#,
         )

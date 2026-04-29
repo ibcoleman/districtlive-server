@@ -10,6 +10,7 @@ rust_test(
     ],
     crate_root = "api.rs",
     edition = "2021",
+    crate_features = ["test-helpers"],
     deps = [
         "//:lib_with_test_helpers",
         "@crates//:axum",
@@ -46,6 +47,7 @@ rust_test(
     srcs = ["integration_db.rs", "support/mod.rs"],
     crate_root = "integration_db.rs",
     edition = "2021",
+    crate_features = ["test-helpers"],
     tags = ["manual", "external"],
     rustc_env = {"SQLX_OFFLINE": "true"},
     deps = [

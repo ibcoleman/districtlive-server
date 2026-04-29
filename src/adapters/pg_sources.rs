@@ -90,6 +90,7 @@ impl SourceRepository for PgSourceRepository {
         sqlx::query(
             r#"UPDATE sources
                SET last_failure_at = now(),
+                   last_error_message = $2,
                    consecutive_failures = consecutive_failures + 1,
                    healthy = (consecutive_failures + 1) <= 3,
                    updated_at = now()
