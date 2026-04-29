@@ -15,6 +15,7 @@ rust_test(
         "//:lib_with_test_helpers",
         "@crates//:axum",
         "@crates//:axum-test",
+        "@crates//:base64",
         "@crates//:serde_json",
         "@crates//:tokio",
     ],
