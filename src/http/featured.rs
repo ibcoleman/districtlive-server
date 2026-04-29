@@ -1,10 +1,10 @@
 use axum::{extract::State, Json};
 
-use crate::{
-    http::{dto::FeaturedEventDto, error::ApiError, AppState},
-};
+use crate::http::{dto::FeaturedEventDto, error::ApiError, AppState};
 
-pub async fn get_featured(State(state): State<AppState>) -> Result<Json<FeaturedEventDto>, ApiError> {
+pub async fn get_featured(
+    State(state): State<AppState>,
+) -> Result<Json<FeaturedEventDto>, ApiError> {
     let featured = state
         .featured
         .find_current()

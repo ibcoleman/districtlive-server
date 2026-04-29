@@ -15,8 +15,8 @@ use districtlive_server::{
         Page, Pagination,
     },
     ports::{
-        event_repository::UpsertResult, ArtistRepository, EventRepository,
-        FeaturedEventRepository, IngestionRunRepository, SourceRepository, VenueRepository,
+        event_repository::UpsertResult, ArtistRepository, EventRepository, FeaturedEventRepository,
+        IngestionRunRepository, SourceRepository, VenueRepository,
     },
 };
 
@@ -59,11 +59,7 @@ impl EventRepository for EmptyEventRepository {
     async fn find_by_slug(&self, _slug: &str) -> Result<Option<Event>, RepoError> {
         Ok(None)
     }
-    async fn find_all(
-        &self,
-        _f: EventFilters,
-        _p: Pagination,
-    ) -> Result<Page<Event>, RepoError> {
+    async fn find_all(&self, _f: EventFilters, _p: Pagination) -> Result<Page<Event>, RepoError> {
         Ok(Page {
             items: vec![],
             total: 0,
@@ -191,7 +187,11 @@ impl IngestionRunRepository for EmptyIngestionRunRepository {
     ) -> Result<(), RepoError> {
         Ok(())
     }
-    async fn mark_failed(&self, _id: IngestionRunId, _error_message: &str) -> Result<(), RepoError> {
+    async fn mark_failed(
+        &self,
+        _id: IngestionRunId,
+        _error_message: &str,
+    ) -> Result<(), RepoError> {
         Ok(())
     }
     async fn find_by_source_id_desc(
@@ -204,8 +204,8 @@ impl IngestionRunRepository for EmptyIngestionRunRepository {
 
 /// Construct a test AppState with empty repositories and test credentials.
 pub fn test_state() -> districtlive_server::http::AppState {
-    use std::sync::Arc;
     use districtlive_server::{config::Config, http::AppState};
+    use std::sync::Arc;
 
     let config = Arc::new(Config::test_default());
     AppState {

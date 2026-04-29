@@ -68,7 +68,7 @@ pub async fn list_events(
             slug: e.slug.clone(),
             start_time: e.start_time,
             doors_time: e.doors_time,
-            venue: None, // Populated below with venue lookup
+            venue: None,     // Populated below with venue lookup
             artists: vec![], // Populated with artist lookup
             min_price: e.min_price,
             max_price: e.max_price,

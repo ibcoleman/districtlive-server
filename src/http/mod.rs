@@ -43,13 +43,22 @@ pub fn create_router(state: AppState) -> axum::Router {
     // Admin sub-router — protected by Basic auth middleware
     let admin_router = axum::Router::new()
         .route("/api/admin/sources", get(admin::list_sources))
-        .route("/api/admin/sources/{id}/history", get(admin::get_source_history))
-        .route("/api/admin/ingest/trigger", post(admin::trigger_all_ingestion))
+        .route(
+            "/api/admin/sources/{id}/history",
+            get(admin::get_source_history),
+        )
+        .route(
+            "/api/admin/ingest/trigger",
+            post(admin::trigger_all_ingestion),
+        )
         .route(
             "/api/admin/ingest/trigger/{source_id}",
             post(admin::trigger_source_ingestion),
         )
-        .route("/api/admin/featured/history", get(admin::get_featured_history))
+        .route(
+            "/api/admin/featured/history",
+            get(admin::get_featured_history),
+        )
         .route("/api/admin/featured", post(admin::create_featured))
         .route_layer(axum::middleware::from_fn_with_state(
             state.clone(),

@@ -41,7 +41,10 @@ impl IntoResponse for ApiError {
             ApiError::Repo(RepoError::NotFound) => (StatusCode::NOT_FOUND, "not found".to_owned()),
             ApiError::Repo(RepoError::Database(e)) => {
                 tracing::error!("Database error: {e}");
-                (StatusCode::INTERNAL_SERVER_ERROR, "database error".to_owned())
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    "database error".to_owned(),
+                )
             }
             ApiError::Ingestion(IngestionError::Disabled) => {
                 (StatusCode::BAD_REQUEST, "ingestion is disabled".to_owned())

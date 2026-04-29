@@ -7,7 +7,11 @@ use uuid::Uuid;
 
 use crate::{
     domain::Pagination,
-    http::{dto::{ArtistDto, PageDto}, error::ApiError, AppState},
+    http::{
+        dto::{ArtistDto, PageDto},
+        error::ApiError,
+        AppState,
+    },
 };
 
 #[derive(Deserialize, Default)]
@@ -42,7 +46,10 @@ pub async fn list_artists(
     }
     if let Some(name) = &q.name {
         let artist = state.artists.find_by_name(name).await?;
-        let items = artist.iter().map(ArtistDto::from_artist).collect::<Vec<_>>();
+        let items = artist
+            .iter()
+            .map(ArtistDto::from_artist)
+            .collect::<Vec<_>>();
         let count = items.len() as i64;
         return Ok(Json(PageDto {
             items,

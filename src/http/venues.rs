@@ -7,7 +7,11 @@ use uuid::Uuid;
 
 use crate::{
     domain::Pagination,
-    http::{dto::{PageDto, VenueDto}, error::ApiError, AppState},
+    http::{
+        dto::{PageDto, VenueDto},
+        error::ApiError,
+        AppState,
+    },
 };
 
 #[derive(Deserialize, Default)]

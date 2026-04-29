@@ -22,7 +22,9 @@ pub async fn list_sources(
     State(state): State<AppState>,
 ) -> Result<Json<Vec<SourceHealthDto>>, ApiError> {
     let sources = state.sources.find_all().await?;
-    Ok(Json(sources.iter().map(SourceHealthDto::from_source).collect()))
+    Ok(Json(
+        sources.iter().map(SourceHealthDto::from_source).collect(),
+    ))
 }
 
 pub async fn get_source_history(
@@ -30,7 +32,10 @@ pub async fn get_source_history(
     Path(source_id): Path<Uuid>,
 ) -> Result<Json<Vec<IngestionRunDto>>, ApiError> {
     use crate::domain::source::SourceId;
-    let runs = state.ingestion_runs.find_by_source_id_desc(SourceId(source_id)).await?;
+    let runs = state
+        .ingestion_runs
+        .find_by_source_id_desc(SourceId(source_id))
+        .await?;
     Ok(Json(runs.iter().map(IngestionRunDto::from_run).collect()))
 }
 

@@ -34,8 +34,7 @@ pub async fn require_basic_auth(
     // Parse "Basic <base64>" header
     let credentials = parse_basic_auth(auth_header).ok_or(ApiError::Unauthorized)?;
 
-    if credentials.0 == state.config.admin_username
-        && credentials.1 == state.config.admin_password
+    if credentials.0 == state.config.admin_username && credentials.1 == state.config.admin_password
     {
         Ok(next.run(request).await)
     } else {
