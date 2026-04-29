@@ -1,5 +1,6 @@
 pub mod dto;
 pub mod error;
+pub mod middleware;
 
 use crate::config::Config;
 use crate::ports::{
