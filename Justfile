@@ -74,14 +74,8 @@ fe-build:
 test: fe-build
     bazel test //tests:api //tests:properties --test_output=errors
 
-# Integration tests that require live Postgres reachable via DATABASE_URL.
-# TODO (Phase 3): Restore when integration_db Bazel target is added.
-# The //tests:integration_db target was deleted in Phase 1 (cleaning example domains).
-# Phase 3 will wire in migration and adapter integration tests against real PostgreSQL.
 test-integration:
-    @echo "Integration tests target deferred to Phase 3. When ready, run:"
-    @echo "  cargo test --features test-helpers -- --ignored"
-    @echo "Prerequisites: 'just dev' running on the host (port-forwards Postgres from kind)"
+    bazel test //tests:integration_db --test_env=DATABASE_URL=${DATABASE_URL:-postgres://app:app@localhost:5432/app}
 
 # Formatting, linting, and `just test` — matches CI.
 check: fe-build
