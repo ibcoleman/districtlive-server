@@ -1,3 +1,4 @@
+pub mod admin;
 pub mod artists;
 pub mod dto;
 pub mod error;
@@ -17,7 +18,7 @@ use axum::{
     extract::Path,
     http::{header, StatusCode},
     response::{IntoResponse, Response},
-    routing::get,
+    routing::{get, post},
 };
 use rust_embed::RustEmbed;
 use std::sync::Arc;
@@ -38,13 +39,46 @@ pub struct AppState {
     pub ingestion_runs: Arc<dyn IngestionRunRepository>,
 }
 
-pub fn router(state: AppState) -> axum::Router {
-    axum::Router::new()
-        .route("/", get(index))
-        .route("/assets/{*path}", get(asset))
+pub fn create_router(state: AppState) -> axum::Router {
+    // Admin sub-router — protected by Basic auth middleware
+    let admin_router = axum::Router::new()
+        .route("/api/admin/sources", get(admin::list_sources))
+        .route("/api/admin/sources/{id}/history", get(admin::get_source_history))
+        .route("/api/admin/ingest/trigger", post(admin::trigger_all_ingestion))
+        .route(
+            "/api/admin/ingest/trigger/{source_id}",
+            post(admin::trigger_source_ingestion),
+        )
+        .route("/api/admin/featured/history", get(admin::get_featured_history))
+        .route("/api/admin/featured", post(admin::create_featured))
+        .route_layer(axum::middleware::from_fn_with_state(
+            state.clone(),
+            middleware::basic_auth::require_basic_auth,
+        ));
+
+    // Public router
+    let public_router = axum::Router::new()
         .route("/healthz", get(healthz))
+        .route("/api/version", get(version::get_version))
+        .route("/api/events", get(events::list_events))
+        .route("/api/events/{id}", get(events::get_event))
+        .route("/api/venues", get(venues::list_venues))
+        .route("/api/venues/{id}", get(venues::get_venue))
+        .route("/api/artists", get(artists::list_artists))
+        .route("/api/artists/{id}", get(artists::get_artist))
+        .route("/api/featured", get(featured::get_featured))
+        // Static assets from embedded frontend
+        .route("/", get(index))
+        .route("/assets/{*path}", get(asset));
+
+    public_router
+        .merge(admin_router)
         .layer(TraceLayer::new_for_http())
         .with_state(state)
+}
+
+async fn healthz() -> axum::Json<serde_json::Value> {
+    axum::Json(serde_json::json!({ "status": "ok" }))
 }
 
 async fn index() -> Response {
@@ -69,8 +103,4 @@ async fn asset(Path(path): Path<String>) -> Response {
         }
         None => StatusCode::NOT_FOUND.into_response(),
     }
-}
-
-async fn healthz() -> &'static str {
-    "ok"
 }

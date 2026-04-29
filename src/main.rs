@@ -4,7 +4,7 @@ use districtlive_server::{
         PgIngestionRunRepository, PgSourceRepository, PgVenueRepository,
     },
     config::Config,
-    http::{router, AppState},
+    http::{create_router, AppState},
 };
 use std::sync::Arc;
 use tokio::signal;
@@ -33,7 +33,7 @@ async fn main() -> anyhow::Result<()> {
     };
 
     let bind_addr = config.bind_addr;
-    let app = router(state);
+    let app = create_router(state);
 
     let listener = tokio::net::TcpListener::bind(bind_addr).await?;
     info!(%bind_addr, "serving");
