@@ -82,7 +82,7 @@ test-integration: fe-build
 # Formatting, linting, and `just test` — matches CI.
 check: fe-build
     cargo fmt --check
-    cargo clippy --all-targets -- -D warnings
+    cargo clippy --all-targets --features test-helpers -- -D warnings
     just test
     cd frontend && pnpm lint
 
