@@ -34,10 +34,9 @@ impl std::fmt::Display for EventId {
 }
 
 /// Lifecycle status of an event listing.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default, sqlx::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum EventStatus {
-    #[default]
     Active,
     Cancelled,
     Postponed,
@@ -55,10 +54,9 @@ pub enum PriceTier {
 }
 
 /// Age restriction policy for the event.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, Default, sqlx::Type)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AgeRestriction {
-    #[default]
     AllAges,
     EighteenPlus,
     TwentyOnePlus,

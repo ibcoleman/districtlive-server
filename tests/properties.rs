@@ -31,11 +31,19 @@ proptest! {
 
     // --- Pagination invariants ---
 
-    /// Offset must equal page * per_page for all valid pagination inputs.
+    /// First page always has offset 0, regardless of per_page.
     #[test]
-    fn pagination_offset_calculation(page in 0i64..1000, per_page in 1i64..200) {
-        let p = Pagination { page, per_page };
-        prop_assert_eq!(p.offset(), page * per_page);
+    fn pagination_first_page_offset_is_zero(per_page in 1i64..200) {
+        let p = Pagination { page: 0, per_page };
+        prop_assert_eq!(p.offset(), 0);
+    }
+
+    /// Each additional page advances by exactly one per_page.
+    #[test]
+    fn pagination_offset_advances_by_per_page(page in 0i64..999, per_page in 1i64..200) {
+        let p_current = Pagination { page, per_page };
+        let p_next = Pagination { page: page + 1, per_page };
+        prop_assert_eq!(p_next.offset() - p_current.offset(), per_page);
     }
 
     /// Offset must be non-negative for non-negative page and positive per_page.
@@ -44,11 +52,11 @@ proptest! {
         let p = Pagination { page, per_page };
         prop_assert!(p.offset() >= 0);
     }
+}
 
-    /// Default pagination has page=0 offset=0.
-    #[test]
-    fn pagination_default_offset_is_zero(_unused in 0u8..1) {
-        let p = Pagination::default();
-        prop_assert_eq!(p.offset(), 0);
-    }
+/// Default pagination has page=0 offset=0.
+#[test]
+fn pagination_default_offset_is_zero() {
+    let p = Pagination::default();
+    assert_eq!(p.offset(), 0);
 }

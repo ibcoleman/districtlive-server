@@ -27,6 +27,13 @@ impl Default for EventSourceId {
 }
 
 /// A record linking an event to one external source that reported it.
+///
+/// # Invariant
+///
+/// When `source_id` is `Some`, its referenced `Source` row's `source_type` must match
+/// the `source_type` field here. Phase 3 adapter code must enforce this invariant when
+/// writing `EventSource` rows. The redundancy exists because of the legacy schema
+/// migration (V21 added `source_id`; earlier rows only have `source_type`).
 #[derive(Debug, Clone, Serialize)]
 pub struct EventSource {
     pub id: EventSourceId,
