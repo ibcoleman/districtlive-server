@@ -153,23 +153,33 @@ fn generate_source_id(title: &str, date_text: &str) -> String {
 }
 
 fn parse_dc9_date(date_text: &str, current_year: u32) -> Option<Date> {
+    use chrono::Datelike;
     if date_text.is_empty() {
         return None;
     }
 
     let with_year = format!("{} {}", date_text, current_year);
-    let fmt =
-        time::macros::format_description!("[weekday repr:short], [month repr:short] [day] [year]");
 
-    time::Date::parse(&with_year, fmt).ok().map(|mut parsed| {
-        // If date is >2 months in the past, assume next year
-        let now = time::OffsetDateTime::now_utc().date();
-        let two_months_ago = now.saturating_sub(time::Duration::days(60));
-        if parsed < two_months_ago {
-            parsed = parsed.saturating_add(time::Duration::days(365));
-        }
-        parsed
-    })
+    // Try multiple formats: "Thu, Apr 2 2026"
+    let parsed = if let Ok(dt) = chrono::NaiveDate::parse_from_str(&with_year, "%a, %b %d %Y") {
+        dt
+    } else if let Ok(dt) = chrono::NaiveDate::parse_from_str(&with_year, "%A, %B %d %Y") {
+        dt
+    } else {
+        return None;
+    };
+
+    let month = time::Month::try_from(parsed.month() as u8).ok()?;
+    let date = time::Date::from_calendar_date(parsed.year(), month, parsed.day() as u8).ok()?;
+
+    // If date is >2 months in the past, assume next year
+    let now = time::OffsetDateTime::now_utc().date();
+    let two_months_ago = now.saturating_sub(time::Duration::days(60));
+    if date < two_months_ago {
+        time::Date::from_calendar_date(parsed.year() + 1, month, parsed.day() as u8).ok()
+    } else {
+        Some(date)
+    }
 }
 
 fn parse_time_from_doors(doors_text: &str, label: &str) -> Option<Time> {

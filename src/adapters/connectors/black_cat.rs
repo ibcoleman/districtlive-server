@@ -1,6 +1,7 @@
 //! Black Cat (Washington DC) venue scraper.
 
 use async_trait::async_trait;
+use chrono::Datelike;
 use reqwest::Client;
 use rust_decimal::Decimal;
 use scraper::{Html, Selector};
@@ -137,47 +138,56 @@ fn parse_black_cat_date(s: &str) -> Option<OffsetDateTime> {
     let trimmed = s.trim();
     let parts: Vec<&str> = trimmed.split_whitespace().collect();
 
-    // Strip leading weekday if present
-    let date_to_parse = if parts.len() >= 3 {
-        let weekdays = [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-        ];
-        if weekdays.contains(&parts[0]) {
-            parts[1..].join(" ")
-        } else {
-            trimmed.to_string()
-        }
-    } else {
+    if parts.is_empty() {
+        return None;
+    }
+
+    // Get current year
+    let current_year = chrono::Utc::now().year();
+
+    // Format examples: "Friday March 6", "Saturday February 21"
+    let with_year = if parts.last().and_then(|p| p.parse::<u32>().ok()).is_some() {
+        // Already has year
         trimmed.to_string()
+    } else {
+        // Append year
+        format!("{} {}", trimmed, current_year)
     };
 
-    // Try parsing formats: "February 21 2026", "Feb 21 2026", etc.
-    let date = time::Date::parse(
-        &date_to_parse,
-        &time::macros::format_description!("[month] [day] [year]"),
-    )
-    .or_else(|_| {
-        time::Date::parse(
-            &date_to_parse,
-            &time::macros::format_description!("[month repr:long] [day] [year]"),
-        )
-    })
-    .or_else(|_| {
-        time::Date::parse(
-            &date_to_parse,
-            &time::macros::format_description!("[month repr:short] [day] [year]"),
-        )
-    })
-    .ok()?;
+    // Try parsing with chrono
+    if let Ok(parsed) = chrono::NaiveDate::parse_from_str(&with_year, "%A %B %d %Y") {
+        // "Friday March 6 2026"
+        let month = time::Month::try_from(parsed.month() as u8).ok()?;
+        let date = time::Date::from_calendar_date(parsed.year(), month, parsed.day() as u8).ok()?;
+        let time = time::Time::from_hms(20, 0, 0).ok()?;
+        return Some(OffsetDateTime::new_utc(date, time));
+    }
 
-    let t = time::Time::from_hms(20, 0, 0).ok()?;
-    Some(OffsetDateTime::new_utc(date, t))
+    if let Ok(parsed) = chrono::NaiveDate::parse_from_str(&with_year, "%B %d %Y") {
+        // "March 6 2026"
+        let month = time::Month::try_from(parsed.month() as u8).ok()?;
+        let date = time::Date::from_calendar_date(parsed.year(), month, parsed.day() as u8).ok()?;
+        let time = time::Time::from_hms(20, 0, 0).ok()?;
+        return Some(OffsetDateTime::new_utc(date, time));
+    }
+
+    if let Ok(parsed) = chrono::NaiveDate::parse_from_str(&with_year, "%A %b %d %Y") {
+        // "Friday Mar 6 2026"
+        let month = time::Month::try_from(parsed.month() as u8).ok()?;
+        let date = time::Date::from_calendar_date(parsed.year(), month, parsed.day() as u8).ok()?;
+        let time = time::Time::from_hms(20, 0, 0).ok()?;
+        return Some(OffsetDateTime::new_utc(date, time));
+    }
+
+    if let Ok(parsed) = chrono::NaiveDate::parse_from_str(&with_year, "%b %d %Y") {
+        // "Mar 6 2026"
+        let month = time::Month::try_from(parsed.month() as u8).ok()?;
+        let date = time::Date::from_calendar_date(parsed.year(), month, parsed.day() as u8).ok()?;
+        let time = time::Time::from_hms(20, 0, 0).ok()?;
+        return Some(OffsetDateTime::new_utc(date, time));
+    }
+
+    None
 }
 
 #[cfg(test)]

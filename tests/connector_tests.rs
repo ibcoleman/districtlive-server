@@ -5,8 +5,6 @@
 //!
 //! Run with: `just test`
 
-#![cfg(feature = "test-helpers")]
-
 use districtlive_server::adapters::connectors::{
     bandsintown::BandsintownConnector, black_cat::BlackCatScraper,
     comet_ping_pong::CometPingPongScraper, dc9::Dc9Scraper, dice_fm::DiceFmConnector,
@@ -58,7 +56,7 @@ fn ticketmaster_parses_fixture() {
 fn bandsintown_parses_fixture() {
     let json = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/events.json"
+        "/tests/fixtures/bandsintown-dc-artists.json"
     ));
     let events = BandsintownConnector::parse_json(json, "test-artist").expect("Parse failed");
     assert_valid_raw_event!(events, "Bandsintown");

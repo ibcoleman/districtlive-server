@@ -139,6 +139,7 @@ fn generate_source_id(title: &str, date_attr: &str) -> String {
 }
 
 fn parse_rhizome_datetime(date_attr: &str, time_text: &str) -> Option<OffsetDateTime> {
+    use chrono::{Datelike, Timelike};
     // date_attr is typically "yyyy-MM-dd"
     if date_attr.len() < 10 {
         return None;
@@ -147,17 +148,25 @@ fn parse_rhizome_datetime(date_attr: &str, time_text: &str) -> Option<OffsetDate
     let date_str = &date_attr[..10];
 
     // Try to parse date
-    let fmt_date = time::macros::format_description!("[year]-[month]-[day]");
-    let date = time::Date::parse(date_str, fmt_date).ok()?;
+    let parsed_date = chrono::NaiveDate::parse_from_str(date_str, "%Y-%m-%d").ok()?;
+    let month = time::Month::try_from(parsed_date.month() as u8).ok()?;
+    let date =
+        time::Date::from_calendar_date(parsed_date.year(), month, parsed_date.day() as u8).ok()?;
 
     // Try to parse time (format: "h:mm a" e.g. "8:00 PM")
     let time = if time_text.is_empty() {
         time::Time::from_hms(20, 0, 0).ok()?
     } else {
-        // Convert "9:00 PM" to "9:00 pm" for parsing
-        let normalized_time = time_text.to_lowercase();
-        let fmt_time = time::macros::format_description!("[hour repr:12]:[minute] [period]");
-        time::Time::parse(&normalized_time, fmt_time).ok()?
+        // Try to parse with chrono: "9:00 PM"
+        // First try with uppercase
+        if let Ok(parsed_time) = chrono::NaiveTime::parse_from_str(time_text, "%I:%M %p") {
+            time::Time::from_hms(parsed_time.hour() as u8, parsed_time.minute() as u8, 0).ok()?
+        } else if let Ok(parsed_time) = chrono::NaiveTime::parse_from_str(time_text, "%l:%M %p") {
+            // %l is the same as %I but with leading space instead of zero
+            time::Time::from_hms(parsed_time.hour() as u8, parsed_time.minute() as u8, 0).ok()?
+        } else {
+            return None;
+        }
     };
 
     Some(OffsetDateTime::new_utc(date, time))

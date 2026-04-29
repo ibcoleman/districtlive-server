@@ -134,6 +134,19 @@ impl SourceConnector for BandsintownConnector {
     }
 }
 
+fn parse_bandsintown_datetime(s: &str) -> Result<OffsetDateTime, IngestionError> {
+    // Try RFC3339 first (with timezone)
+    if let Ok(dt) = OffsetDateTime::parse(s, &time::format_description::well_known::Rfc3339) {
+        return Ok(dt);
+    }
+    // Fall back: no timezone, assume UTC
+    // Format: "2026-05-10T23:00:00"
+    let fmt = time::macros::format_description!("[year]-[month]-[day]T[hour]:[minute]:[second]");
+    time::PrimitiveDateTime::parse(s, fmt)
+        .map(|dt| dt.assume_utc())
+        .map_err(|_| IngestionError::Parse(format!("Cannot parse datetime: {s}")))
+}
+
 fn is_in_dc_area(event: &Value) -> bool {
     let venue = event.get("venue");
     if venue.is_none() {
@@ -166,13 +179,12 @@ fn parse_event_node(event: &Value, seed_artist: &str) -> Result<RawEvent, Ingest
         .unwrap_or("")
         .to_owned();
 
-    let start_time = event
-        .get("datetime")
-        .and_then(|dt| dt.as_str())
-        .and_then(|dt| {
-            OffsetDateTime::parse(dt, &time::format_description::well_known::Rfc3339).ok()
-        })
-        .ok_or_else(|| IngestionError::Parse("Missing or unparseable datetime".to_owned()))?;
+    let start_time = parse_bandsintown_datetime(
+        event
+            .get("datetime")
+            .and_then(|dt| dt.as_str())
+            .unwrap_or(""),
+    )?;
 
     let lineup = event
         .get("lineup")

@@ -55,6 +55,7 @@ rust_test(
     crate_root = "connector_tests.rs",
     edition = "2021",
     compile_data = glob(["fixtures/**"]),
+    data = glob(["fixtures/**"]),
     rustc_env = {
         "CARGO_MANIFEST_DIR": ".",
         "SQLX_OFFLINE": "true",
