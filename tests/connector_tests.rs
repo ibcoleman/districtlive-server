@@ -44,40 +44,28 @@ macro_rules! assert_valid_raw_event {
 
 #[test]
 fn ticketmaster_parses_fixture() {
-    let json = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/ticketmaster-dc-events.json"
-    ));
+    let json = include_str!(concat!("fixtures/ticketmaster-dc-events.json"));
     let events = TicketmasterConnector::parse_json(json).expect("Parse failed");
     assert_valid_raw_event!(events, "Ticketmaster");
 }
 
 #[test]
 fn bandsintown_parses_fixture() {
-    let json = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/bandsintown-dc-artists.json"
-    ));
+    let json = include_str!(concat!("fixtures/bandsintown-dc-artists.json"));
     let events = BandsintownConnector::parse_json(json, "test-artist").expect("Parse failed");
     assert_valid_raw_event!(events, "Bandsintown");
 }
 
 #[test]
 fn dicefm_parses_fixture_with_events() {
-    let html = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/dicefm-venue-events.html"
-    ));
+    let html = include_str!(concat!("fixtures/dicefm-venue-events.html"));
     let events = DiceFmConnector::parse_html(html, "test-venue").expect("Parse failed");
     assert_valid_raw_event!(events, "Dice.fm");
 }
 
 #[test]
 fn dicefm_empty_fixture_returns_no_events() {
-    let html = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/dicefm-empty-events.html"
-    ));
+    let html = include_str!(concat!("fixtures/dicefm-empty-events.html"));
     let events = DiceFmConnector::parse_html(html, "test-venue").expect("Parse failed");
     assert!(
         events.is_empty(),
@@ -87,30 +75,21 @@ fn dicefm_empty_fixture_returns_no_events() {
 
 #[test]
 fn black_cat_parses_fixture() {
-    let html = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/black-cat-schedule.html"
-    ));
+    let html = include_str!(concat!("fixtures/black-cat-schedule.html"));
     let events = BlackCatScraper::parse(html).expect("Parse failed");
     assert_valid_raw_event!(events, "BlackCat");
 }
 
 #[test]
 fn dc9_parses_fixture() {
-    let html = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/dc9-events.html"
-    ));
+    let html = include_str!(concat!("fixtures/dc9-events.html"));
     let events = Dc9Scraper::parse(html).expect("Parse failed");
     assert_valid_raw_event!(events, "DC9");
 }
 
 #[test]
 fn comet_ping_pong_parses_listing_fixture() {
-    let html = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/comet-ping-pong-listing.html"
-    ));
+    let html = include_str!(concat!("fixtures/comet-ping-pong-listing.html"));
     let events = CometPingPongScraper::parse_listing(html);
     assert!(!events.is_empty(), "CometPingPong: Should parse ≥1 event");
     for (event, _) in &events {
@@ -124,40 +103,28 @@ fn comet_ping_pong_parses_listing_fixture() {
 
 #[test]
 fn pie_shop_parses_listing_fixture() {
-    let html = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/pie-shop-listing.html"
-    ));
+    let html = include_str!(concat!("fixtures/pie-shop-listing.html"));
     let events = PieShopScraper::parse_listing(html);
     assert!(!events.is_empty(), "PieShop: Should parse ≥1 event");
 }
 
 #[test]
 fn rhizome_dc_parses_fixture() {
-    let html = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/rhizome-dc-events.html"
-    ));
+    let html = include_str!(concat!("fixtures/rhizome-dc-events.html"));
     let events = RhizomeDcScraper::parse(html).expect("Parse failed");
     assert_valid_raw_event!(events, "RhizomeDC");
 }
 
 #[test]
 fn seven_drum_city_parses_fixture() {
-    let html = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/7-drum-city-events.html"
-    ));
+    let html = include_str!(concat!("fixtures/7-drum-city-events.html"));
     let events = SevenDrumCityScraper::parse(html).expect("Parse failed");
     assert_valid_raw_event!(events, "7DrumCity");
 }
 
 #[test]
 fn union_stage_presents_parses_listing_fixture() {
-    let html = include_str!(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/tests/fixtures/union-stage-presents-listing.html"
-    ));
+    let html = include_str!(concat!("fixtures/union-stage-presents-listing.html"));
     let events = UnionStagePresentsScraper::parse_listing(html, "union-stage");
     assert!(
         !events.is_empty(),
