@@ -1,7 +1,6 @@
-use std::net::SocketAddr;
-
-use anyhow::Context;
-use tokio::{net::TcpListener, signal};
+use rust_app_template::{config::Config, http::{AppState, router}};
+use std::sync::Arc;
+use tokio::signal;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
@@ -13,21 +12,17 @@ async fn main() -> anyhow::Result<()> {
         )
         .init();
 
-    let bind_addr: SocketAddr = std::env::var("BIND_ADDR")
-        .unwrap_or_else(|_| "0.0.0.0:8080".to_string())
-        .parse()
-        .context("BIND_ADDR is not a valid socket address")?;
+    let config = Arc::new(Config::from_env()?);
+    let bind_addr = config.bind_addr;
+    let state = AppState { config };
+    let app = router(state);
 
-    let state = rust_app_template::http::AppState {};
-    let app = rust_app_template::http::router(state);
-
-    let listener = TcpListener::bind(bind_addr).await.context("bind failed")?;
+    let listener = tokio::net::TcpListener::bind(bind_addr).await?;
     info!(%bind_addr, "serving");
 
     axum::serve(listener, app)
         .with_graceful_shutdown(shutdown_signal())
-        .await
-        .context("server error")?;
+        .await?;
 
     Ok(())
 }

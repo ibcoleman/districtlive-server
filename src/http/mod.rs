@@ -6,9 +6,10 @@ use axum::{
     http::{header, StatusCode},
     response::{IntoResponse, Response},
     routing::get,
-    Router,
 };
+use crate::config::Config;
 use rust_embed::RustEmbed;
+use std::sync::Arc;
 use tower_http::trace::TraceLayer;
 
 #[derive(RustEmbed)]
@@ -16,10 +17,12 @@ use tower_http::trace::TraceLayer;
 struct Assets;
 
 #[derive(Clone)]
-pub struct AppState {}
+pub struct AppState {
+    pub config: Arc<Config>,
+}
 
-pub fn router(state: AppState) -> Router {
-    Router::new()
+pub fn router(state: AppState) -> axum::Router {
+    axum::Router::new()
         .route("/", get(index))
         .route("/assets/{*path}", get(asset))
         .route("/healthz", get(healthz))
