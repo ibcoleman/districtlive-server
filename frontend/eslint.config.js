@@ -30,6 +30,7 @@ export default [
       // neverthrow/must-use-result rule requires parserServices from TypeScript parser,
       // but eslint-plugin-neverthrow 1.1.4 has a compatibility issue with @typescript-eslint 8.x
       // in flat config mode. The plugin is imported and available, but the rule is disabled.
+      // TODO: re-enable once neverthrow plugin supports @typescript-eslint 8.x flat config
       // Code review and pnpm typecheck ensure Result values are properly handled.
     },
   },

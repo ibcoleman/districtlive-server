@@ -58,6 +58,7 @@ async function request<T>(
     throw new RequestError(response.status, body);
   }
 
+  // Response shape is validated by the server; no client-side schema check.
   return response.json() as T;
 }
 

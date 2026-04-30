@@ -38,6 +38,7 @@ function renderLogin(onSuccess: () => void): void {
 
 // --- Source health card ---
 
+// Admin-only page; server data treated as trusted HTML source.
 function sourceCard(source: SourceHealthDto): string {
   const status = source.healthy ? '✓ healthy' : `✗ ${source.consecutive_failures} failures`;
   const lastSuccess = source.last_success_at

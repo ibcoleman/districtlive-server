@@ -37,6 +37,7 @@ function renderLogin(onSuccess: () => void): void {
 
 // --- History row ---
 
+// Admin-only page; server data treated as trusted HTML source.
 function historyRow(item: FeaturedEventDto): string {
   const date = new Date(item.created_at).toLocaleString();
   return `
