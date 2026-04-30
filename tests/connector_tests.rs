@@ -111,8 +111,14 @@ fn comet_ping_pong_detail_enriches_event() {
     let (mut event, _) = events.remove(0);
 
     // Verify detail page starts without enrichment fields
-    assert!(event.min_price.is_none(), "Price should be absent before detail fetch");
-    assert!(event.description.is_none(), "Description should be absent before detail fetch");
+    assert!(
+        event.min_price.is_none(),
+        "Price should be absent before detail fetch"
+    );
+    assert!(
+        event.description.is_none(),
+        "Description should be absent before detail fetch"
+    );
 
     CometPingPongScraper::parse_detail(detail_html, &mut event);
 
@@ -127,7 +133,11 @@ fn comet_ping_pong_detail_enriches_event() {
         "parse_detail should populate description from .confirm-description"
     );
     assert!(
-        event.description.as_deref().unwrap_or("").contains("New Zealand"),
+        event
+            .description
+            .as_deref()
+            .unwrap_or("")
+            .contains("New Zealand"),
         "Description should contain fixture text about New Zealand"
     );
 }
