@@ -46,6 +46,7 @@ Hexagonal / ports-and-adapters:
 - Functional Core / Imperative Shell: pure logic in domain, side effects in adapters/schedulers
 - `// pattern: Imperative Shell` or `// pattern: Functional Core` comment marks each source file
 - Use `#[expect(...)]` instead of `#[allow(...)]` for lint suppressions — it warns when the suppression is no longer needed
+- All `Cargo.toml` dependencies use exact `=x.y.z` version pins (no caret or tilde ranges) — deliberate for reproducibility
 
 ## Key Environment Variables
 | Variable | Required | Default | Purpose |
