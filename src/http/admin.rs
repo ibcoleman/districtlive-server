@@ -1,4 +1,5 @@
 //! Admin API handlers. All routes require HTTP Basic auth (enforced by middleware).
+// pattern: Imperative Shell
 
 use axum::{
     extract::{Path, State},

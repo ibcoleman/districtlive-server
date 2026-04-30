@@ -1,4 +1,5 @@
 //! Domain types — pure value types with no I/O dependencies.
+// pattern: Functional Core
 
 pub mod artist;
 pub mod error;

@@ -3,6 +3,7 @@
 //! Also contains ingestion pipeline types (RawEvent, NormalizedEvent,
 //! DeduplicatedEvent, EventUpsertCommand) since they describe events
 //! at different stages of processing.
+// pattern: Functional Core
 
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};

@@ -1,3 +1,4 @@
+// pattern: Imperative Shell
 use anyhow::Context;
 use districtlive_server::{
     adapters::{

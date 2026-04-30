@@ -3,6 +3,7 @@
 //! All field names map to their uppercase `SCREAMING_SNAKE_CASE` env var equivalent
 //! (e.g., `database_url` ← `DATABASE_URL`). Optional fields use `Option<T>` or
 //! have sensible defaults for local development.
+// pattern: Imperative Shell
 
 use anyhow::Context as _;
 use std::{env, net::SocketAddr};

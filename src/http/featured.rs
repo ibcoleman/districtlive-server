@@ -1,3 +1,4 @@
+// pattern: Imperative Shell
 use axum::{extract::State, Json};
 
 use crate::http::{dto::FeaturedEventDto, error::ApiError, AppState};

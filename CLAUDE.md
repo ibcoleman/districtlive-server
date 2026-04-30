@@ -44,7 +44,8 @@ Hexagonal / ports-and-adapters:
 - `EventDto::from_event()` is the single conversion point; hydrate venue/artists separately after
 - `ArtistDto` omits enrichment internals (no `enrichment_status`, `mb_tags`, etc.) — only consumer-facing fields
 - Functional Core / Imperative Shell: pure logic in domain, side effects in adapters/schedulers
-- `// pattern: Imperative Shell` comment marks orchestrator and scheduler files
+- `// pattern: Imperative Shell` or `// pattern: Functional Core` comment marks each source file
+- Use `#[expect(...)]` instead of `#[allow(...)]` for lint suppressions — it warns when the suppression is no longer needed
 
 ## Key Environment Variables
 | Variable | Required | Default | Purpose |

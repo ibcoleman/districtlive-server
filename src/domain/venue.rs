@@ -1,4 +1,5 @@
 //! Venue domain type — a physical venue where events take place.
+// pattern: Functional Core
 
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;

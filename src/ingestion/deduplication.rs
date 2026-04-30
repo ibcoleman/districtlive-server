@@ -4,6 +4,7 @@
 //! 1. (Primary) Same venue name (case-insensitive), same calendar date (ET), and
 //!    title Jaro-Winkler similarity > 0.85
 //! 2. (Secondary) Same calendar date (ET) and at least one shared artist name
+// pattern: Functional Core
 
 use strsim::jaro_winkler;
 

@@ -1,4 +1,5 @@
 //! Ticketmaster Discovery API connector for DC music events.
+// pattern: Imperative Shell
 
 use async_trait::async_trait;
 use reqwest::Client;

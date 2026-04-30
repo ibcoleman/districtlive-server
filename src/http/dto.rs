@@ -2,6 +2,7 @@
 //!
 //! These structs define the JSON wire format. They are constructed from domain
 //! types in handler functions and should not contain business logic.
+// pattern: Imperative Shell
 
 use rust_decimal::Decimal;
 use serde::Serialize;

@@ -1,4 +1,5 @@
 //! Normalization service — cleans RawEvents and generates URL-safe slugs.
+// pattern: Functional Core
 
 use chrono_tz::America::New_York;
 use time::OffsetDateTime;

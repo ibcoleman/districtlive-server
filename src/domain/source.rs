@@ -1,4 +1,5 @@
 //! Source domain type — a configured data source (API or scraper).
+// pattern: Functional Core
 
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;

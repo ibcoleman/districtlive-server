@@ -1,4 +1,5 @@
 //! Ingestion scheduler — fires the ingestion pipeline on a cron schedule.
+// pattern: Imperative Shell
 
 use std::sync::Arc;
 use tokio_cron_scheduler::JobScheduler;

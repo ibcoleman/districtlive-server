@@ -23,6 +23,9 @@ use districtlive_server::ports::{ArtistEnricher, ArtistRepository, EventReposito
 use rust_decimal::Decimal;
 
 async fn setup() -> (Arc<sqlx::PgPool>, TestHelper) {
+    if std::env::var("DATABASE_URL").is_err() {
+        panic!("integration_db tests require DATABASE_URL to be set");
+    }
     let url = std::env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://app:app@localhost:5432/app".to_owned());
     let pool = Arc::new(connect(&url).await.expect("Failed to connect to test DB"));
@@ -34,7 +37,6 @@ async fn setup() -> (Arc<sqlx::PgPool>, TestHelper) {
 // ---- Migration tests ----
 
 #[tokio::test]
-#[ignore]
 async fn ac1_1_migrations_apply_cleanly() {
     // If setup() succeeds, migrations ran without error.
     let (_pool, _helper) = setup().await;
@@ -42,7 +44,6 @@ async fn ac1_1_migrations_apply_cleanly() {
 }
 
 #[tokio::test]
-#[ignore]
 async fn ac1_2_expected_tables_exist() {
     let (pool, _helper) = setup().await;
     for table in &[
@@ -67,7 +68,6 @@ async fn ac1_2_expected_tables_exist() {
 }
 
 #[tokio::test]
-#[ignore]
 async fn ac1_3_seed_data_present() {
     let (pool, _helper) = setup().await;
     // Seeds should be present — reset() only truncates non-seed tables
@@ -88,7 +88,6 @@ async fn ac1_3_seed_data_present() {
 // ---- Event upsert tests ----
 
 #[tokio::test]
-#[ignore]
 async fn event_upsert_creates_new_event() {
     let (pool, _helper) = setup().await;
     let events = PgEventRepository::new(pool.clone());
@@ -101,7 +100,6 @@ async fn event_upsert_creates_new_event() {
 }
 
 #[tokio::test]
-#[ignore]
 async fn ac1_4_event_upsert_updates_on_slug_conflict() {
     let (pool, _helper) = setup().await;
     let events = PgEventRepository::new(pool.clone());
@@ -121,7 +119,6 @@ async fn ac1_4_event_upsert_updates_on_slug_conflict() {
 // ---- Artist claim_pending_batch tests ----
 
 #[tokio::test]
-#[ignore]
 async fn artist_claim_pending_batch_marks_in_progress() {
     let (pool, _helper) = setup().await;
     let events = PgEventRepository::new(pool.clone());
@@ -143,7 +140,6 @@ async fn artist_claim_pending_batch_marks_in_progress() {
 }
 
 #[tokio::test]
-#[ignore]
 async fn artist_reset_in_progress_to_pending() {
     let (pool, _helper) = setup().await;
     let events = PgEventRepository::new(pool.clone());

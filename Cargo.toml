@@ -15,52 +15,52 @@ name = "app"
 path = "src/main.rs"
 
 [dependencies]
-axum = "0.8"
-tokio = { version = "1.52", features = ["macros", "rt-multi-thread", "signal"] }
-tower = "0.5"
-tower-http = { version = "0.6", features = ["trace"] }
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
-thiserror = "2"
-anyhow = "1"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-async-trait = "0.1"
-sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "uuid", "time", "macros", "migrate", "rust_decimal"] }
-uuid = { version = "1", features = ["v4", "serde"] }
-time = { version = "0.3", features = ["formatting", "parsing", "serde"] }
-rust-embed = { version = "8.11", features = ["compression", "debug-embed", "deterministic-timestamps"] }
-mime_guess = "2"
+axum = "=0.8.9"
+tokio = { version = "=1.52.1", features = ["macros", "rt-multi-thread", "signal"] }
+tower = "=0.5.3"
+tower-http = { version = "=0.6.8", features = ["trace"] }
+tracing = "=0.1.44"
+tracing-subscriber = { version = "=0.3.23", features = ["env-filter", "fmt"] }
+thiserror = "=2.0.18"
+anyhow = "=1.0.102"
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = "=1.0.149"
+async-trait = "=0.1.89"
+sqlx = { version = "=0.8.6", features = ["runtime-tokio-rustls", "postgres", "uuid", "time", "macros", "migrate", "rust_decimal"] }
+uuid = { version = "=1.23.1", features = ["v4", "serde"] }
+time = { version = "=0.3.47", features = ["formatting", "parsing", "serde"] }
+rust-embed = { version = "=8.11.0", features = ["compression", "debug-embed", "deterministic-timestamps"] }
+mime_guess = "=2.0.5"
 
 # HTML scraping — venue website connectors (Phase 5)
-scraper = "0.26"
+scraper = "=0.26.0"
 
 # Async HTTP client — all connectors and enrichers (Phase 5+)
-reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+reqwest = { version = "=0.12.28", features = ["json", "rustls-tls"], default-features = false }
 
 # Cron-scheduled async tasks — ingestion and enrichment schedulers (Phase 5+)
-tokio-cron-scheduler = "0.13"
+tokio-cron-scheduler = "=0.13.0"
 
 # Additional Axum utilities — TypedHeader for Basic auth (Phase 4)
-axum-extra = { version = "0.10", features = ["typed-header"] }
+axum-extra = { version = "=0.10.3", features = ["typed-header"] }
 
 # Exact decimal arithmetic — price/money fields (Phase 2+)
 # default features (std, serde support) are minimal and appropriate; no need to disable
-rust_decimal = { version = "1", features = ["serde"] }
+rust_decimal = { version = "=1.41.0", features = ["serde"] }
 
 # Base64 encoding — used by Basic auth test helpers (Phase 4 tests)
-base64 = "0.22"
+base64 = "=0.22.1"
 
 # Fuzzy string similarity for event deduplication (Jaro-Winkler)
-strsim = "0.11"
+strsim = "=0.11.1"
 
 # Timezone-aware date extraction for slug generation (America/New_York)
-chrono = "0.4"
-chrono-tz = "0.10"
+chrono = "=0.4.44"
+chrono-tz = "=0.10.4"
 
 [dev-dependencies]
-axum-test = "17"
-proptest = "1"
+axum-test = "=17.3.0"
+proptest = "=1.11.0"
 
 [features]
 test-helpers = []

@@ -1,4 +1,5 @@
 //! Dice.fm HTML connector with JSON-LD event extraction.
+// pattern: Imperative Shell
 
 use async_trait::async_trait;
 use reqwest::Client;

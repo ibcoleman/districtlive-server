@@ -1,4 +1,5 @@
 //! HTTP error type. Converts domain errors to HTTP responses.
+// pattern: Imperative Shell
 
 use axum::{
     http::StatusCode,

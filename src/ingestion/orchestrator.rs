@@ -1,5 +1,6 @@
 //! Ingestion orchestrator — runs the full fetch → normalize → filter → deduplicate → upsert pipeline
 //! for a single source connector.
+// pattern: Imperative Shell
 
 use std::sync::Arc;
 

@@ -1,3 +1,4 @@
+// pattern: Imperative Shell
 use async_trait::async_trait;
 use sqlx::{PgPool, QueryBuilder};
 use std::sync::Arc;
@@ -33,31 +34,23 @@ impl PgEventRepository {
         name: &str,
         address: Option<&str>,
     ) -> Result<Uuid, RepoError> {
-        // Try to find by name (case-insensitive)
-        if let Some(id) =
-            sqlx::query_scalar::<_, Uuid>("SELECT id FROM venues WHERE lower(name) = lower($1)")
-                .bind(name)
-                .fetch_optional(&mut **tx)
-                .await?
-        {
-            return Ok(id);
-        }
-
-        // Create new venue with a slug derived from the name
         let id = Uuid::new_v4();
         let slug = slugify(name);
-        sqlx::query(
+        // RETURNING id always returns the actual persisted row ID — either the newly
+        // inserted row's ID or the existing row's ID on conflict.
+        let actual_id = sqlx::query_scalar::<_, Uuid>(
             r#"INSERT INTO venues (id, name, slug, address, created_at, updated_at)
                VALUES ($1, $2, $3, $4, now(), now())
-               ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name"#,
+               ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+               RETURNING id"#,
         )
         .bind(id)
         .bind(name)
         .bind(&slug)
         .bind(address)
-        .execute(&mut **tx)
+        .fetch_one(&mut **tx)
         .await?;
-        Ok(id)
+        Ok(actual_id)
     }
 
     /// Resolve an existing artist by name or create a new one. Returns the artist ID.
@@ -65,29 +58,23 @@ impl PgEventRepository {
         tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,
         name: &str,
     ) -> Result<Uuid, RepoError> {
-        if let Some(id) =
-            sqlx::query_scalar::<_, Uuid>("SELECT id FROM artists WHERE lower(name) = lower($1)")
-                .bind(name)
-                .fetch_optional(&mut **tx)
-                .await?
-        {
-            return Ok(id);
-        }
-
         let id = Uuid::new_v4();
         let slug = slugify(name);
-        sqlx::query(
+        // RETURNING id always returns the actual persisted row ID — either the newly
+        // inserted row's ID or the existing row's ID on conflict.
+        let actual_id = sqlx::query_scalar::<_, Uuid>(
             r#"INSERT INTO artists (id, name, slug, genres, is_local, enrichment_status,
                                     enrichment_attempts, created_at, updated_at)
                VALUES ($1, $2, $3, '{}'::text[], false, 'PENDING', 0, now(), now())
-               ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name"#,
+               ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
+               RETURNING id"#,
         )
         .bind(id)
         .bind(name)
         .bind(&slug)
-        .execute(&mut **tx)
+        .fetch_one(&mut **tx)
         .await?;
-        Ok(id)
+        Ok(actual_id)
     }
 }
 

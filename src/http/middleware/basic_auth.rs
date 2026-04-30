@@ -4,6 +4,7 @@
 //! - Missing `Authorization` header
 //! - Malformed `Authorization` header
 //! - Incorrect username or password
+// pattern: Imperative Shell
 
 use axum::{
     extract::{Request, State},
@@ -17,7 +18,7 @@ use crate::http::AppState;
 /// Tower middleware: validate HTTP Basic auth against Config admin credentials.
 ///
 /// Apply to admin routes via:
-/// ```rust
+/// ```rust,ignore
 /// admin_router.route_layer(axum::middleware::from_fn_with_state(state, require_basic_auth))
 /// ```
 pub async fn require_basic_auth(

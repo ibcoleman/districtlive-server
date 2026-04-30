@@ -1,4 +1,5 @@
 //! Domain error types shared across ports and adapters.
+// pattern: Functional Core
 
 /// Errors returned by repository port implementations.
 #[derive(Debug, thiserror::Error)]

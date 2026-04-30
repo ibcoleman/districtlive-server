@@ -1,4 +1,5 @@
 //! DC9 (Washington DC) venue scraper.
+// pattern: Imperative Shell
 
 use async_trait::async_trait;
 use reqwest::Client;

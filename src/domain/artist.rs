@@ -1,4 +1,5 @@
 //! Artist domain type and enrichment-related types.
+// pattern: Functional Core
 
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
