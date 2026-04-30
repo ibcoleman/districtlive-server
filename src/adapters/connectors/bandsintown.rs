@@ -78,7 +78,7 @@ impl SourceConnector for BandsintownConnector {
     }
 
     fn source_type(&self) -> SourceType {
-        SourceType::BandsinTownApi
+        SourceType::BandsintownApi
     }
 
     async fn fetch(&self) -> Result<Vec<RawEvent>, IngestionError> {
@@ -244,7 +244,7 @@ fn parse_event_node(event: &Value, seed_artist: &str) -> Result<RawEvent, Ingest
         });
 
     Ok(RawEvent {
-        source_type: SourceType::BandsinTownApi,
+        source_type: SourceType::BandsintownApi,
         source_identifier: Some(format!("{}:{}", seed_artist, event_id)),
         source_url: source_url.clone(),
         title,

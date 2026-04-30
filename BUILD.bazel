@@ -46,5 +46,6 @@ rust_binary(
         "@crates//:tokio",
         "@crates//:tracing",
         "@crates//:tracing-subscriber",
+	"@crates//:reqwest",
     ],
 )

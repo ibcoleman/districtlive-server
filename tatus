@@ -1,0 +1,60 @@
+[1m[38;5;2m@[0m  [1m[38;5;13my[38;5;8msvxwzwk[39m [38;5;3mibcoleman@gmail.com[39m [38;5;14m2026-04-30 21:57:23[39m [38;5;12mba[38;5;8m989e5e[39m[0m
+│  [1mSome minor cleanup and a couple of todo items[0m
+○  [1m[38;5;5msz[0m[38;5;8mssvmwp[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-30 16:38:27[39m [1m[38;5;4m86[0m[38;5;8m88cd91[39m
+│  Remove .envrc from repo and add to .gitignore. Fix issue with missing jj and just for Innie Claude's devcontainer config
+[1m[38;5;14m◆[0m  [1m[38;5;5mrp[0m[38;5;8mxuzwws[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-30 15:24:16[39m [38;5;5mmain[39m [1m[38;5;4m38[0m[38;5;8m3f9c09[39m
+│  Fixed a couple of minor test issues breaking Scope: all 2 workspace projects
+[38;5;8m~[39m  [38;5;8m(elided revisions)[39m
+│ ○  [1m[38;5;5mk[0m[38;5;8mnworyvw[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-30 16:42:17[39m [1m[38;5;4m6[0m[38;5;8me4fe365[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mrs[0m[38;5;8msvxqko[39m [38;5;3mian.coleman@tacticaledge.us[39m [38;5;6m2026-04-29 21:05:58[39m [1m[38;5;4mbf[0m[38;5;8m75a094[39m
+│  fix: Phase 6 code review fixes (C1-C2, I1-I3, M1-M3)
+[38;5;8m~[39m  [38;5;8m(elided revisions)[39m
+│ ○  [1m[38;5;5mrq[0m[38;5;8mwvsvmw[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 20:50:10[39m [1m[38;5;4m9[0m[38;5;8m5a79b43[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mn[0m[38;5;8mswqxmos[39m [38;5;3mian.coleman@tacticaledge.us[39m [38;5;6m2026-04-29 20:12:03[39m [1m[38;5;4m2b[0m[38;5;8m2aa51c[39m
+│  feat: Spotify enricher with OAuth2 token caching and 429 retry
+[38;5;8m~[39m  [38;5;8m(elided revisions)[39m
+│ ○  [1m[38;5;5mwn[0m[38;5;8mokkvmo[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 18:29:02[39m [1m[38;5;4m33[0m[38;5;8m25e559[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mos[0m[38;5;8myxukqt[39m [38;5;3mian.coleman@tacticaledge.us[39m [38;5;6m2026-04-29 18:23:56[39m [1m[38;5;4ma0[0m[38;5;8m29e549[39m
+│  chore: phase 3 integration tests + justfile — task 6-7
+│ ○  [1m[38;5;5msm[0m[38;5;8muzultl[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 18:19:08[39m [1m[38;5;4m4e[0m[38;5;8md807c8[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mpo[0m[38;5;8mskrxno[39m [38;5;3mian.coleman@tacticaledge.us[39m [38;5;6m2026-04-29 18:18:21[39m [1m[38;5;4ma6[0m[38;5;8m8f05a1[39m
+│  feat: pg_venues, pg_sources, pg_ingestion_runs, pg_featured, pg_artists, pg_events
+│ ○  [1m[38;5;5mu[0m[38;5;8mnprwswl[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 18:16:50[39m [1m[38;5;4m03[0m[38;5;8m6c2bb7[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mvy[0m[38;5;8mmzqpsk[39m [38;5;3mian.coleman@tacticaledge.us[39m [38;5;6m2026-04-29 17:34:54[39m [1m[38;5;4me[0m[38;5;8m43aed5b[39m
+│  fix: address Phase 2 code review feedback
+[38;5;8m~[39m  [38;5;8m(elided revisions)[39m
+│ ○  [1m[38;5;5mvp[0m[38;5;8mmwwqoo[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 17:00:55[39m [1m[38;5;4mb3[0m[38;5;8m64a4b1[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mzu[0m[38;5;8mumukwm[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 17:00:43[39m [1m[38;5;4mcc[0m[38;5;8mf157cf[39m
+│  feat: port 21 Flyway migrations to sqlx format
+│ ○  [1m[38;5;5mxt[0m[38;5;8mpzytvy[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 16:59:55[39m [1m[38;5;4m79[0m[38;5;8mc241e0[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mms[0m[38;5;8mzlxpny[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 16:59:43[39m [1m[38;5;4ma2[0m[38;5;8m6c77dc[39m
+│  [38;5;2m(empty)[39m chore: add scraper, reqwest, tokio-cron-scheduler, axum-extra, rust_decimal, base64
+│ ○  [1m[38;5;5mzp[0m[38;5;8msnlops[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 16:59:38[39m [1m[38;5;4m4b[0m[38;5;8me17ba2[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mpr[0m[38;5;8mqlxztx[39m [38;5;3mian.coleman@tacticaledge.us[39m [38;5;6m2026-04-29 16:55:39[39m [1m[38;5;4m00[0m[38;5;8ma89ef2[39m
+│  feat: add Config::from_env(), module stubs, wire AppState with config
+│ ○  [1m[38;5;5mvz[0m[38;5;8mtyuzrk[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 16:53:09[39m [1m[38;5;4m7d[0m[38;5;8m6f2546[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mvk[0m[38;5;8mllsuwx[39m [38;5;3mian.coleman@tacticaledge.us[39m [38;5;6m2026-04-29 16:53:07[39m [1m[38;5;4mc26[0m[38;5;8m2e148[39m
+│  chore: remove greeter example, stub AppState for DistrictLive
+│ ○  [1m[38;5;5mmo[0m[38;5;8mrsmrts[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 16:51:35[39m [1m[38;5;4m5[0m[38;5;8mb1fa794[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mt[0m[38;5;8mrykqnkz[39m [38;5;3mian.coleman@tacticaledge.us[39m [38;5;6m2026-04-29 16:51:22[39m [1m[38;5;4m20[0m[38;5;8mdfc523[39m
+│  chore: remove notes/greeter example via just clean-examples
+│ ○  [1m[38;5;5mok[0m[38;5;8mtvmpvl[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 16:51:19[39m [1m[38;5;4m8f[0m[38;5;8mcf478f[39m
+├─╯  [38;5;3m(no description set)[39m
+[1m[38;5;14m◆[0m  [1m[38;5;5mwv[0m[38;5;8mmtlnmw[39m [38;5;3mian.coleman@tacticaledge.us[39m [38;5;6m2026-04-29 16:14:45[39m [1m[38;5;4mc2c[0m[38;5;8m5e4ee[39m
+│  docs: add rust-port implementation plan (7 phases + test requirements)
+[38;5;8m~[39m  [38;5;8m(elided revisions)[39m
+│ ○  [1m[38;5;5mxp[0m[38;5;8mvnozlm[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 13:18:52[39m [1m[38;5;4mc22[0m[38;5;8m6c489[39m
+├─╯  Begin migration from Kotlin -> Rust
+[1m[38;5;14m◆[0m  [1m[38;5;5ml[0m[38;5;8mqnrqqlw[39m [38;5;3mibcoleman@gmail.com[39m [38;5;6m2026-04-29 13:12:23[39m [1m[38;5;4m8e[0m[38;5;8m0cc1df[39m
+│  Initial configuration, project rename, etc...
+~

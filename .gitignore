@@ -23,6 +23,9 @@ frontend/dist
 # Built binary (produced by `bazel build`, should not be committed)
 /app
 
+# Target artifact directory
+target
+
 # Local env
 .env
 .env.local
@@ -35,3 +38,5 @@ tilt_modules
 # Docs
 docs/implementation-plans/
 
+# Mutant tests
+/mutants.out

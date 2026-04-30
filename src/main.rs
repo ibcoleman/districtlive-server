@@ -77,7 +77,7 @@ async fn main() -> anyhow::Result<()> {
                         matches!(
                             c.source_type(),
                             districtlive_server::domain::source::SourceType::TicketmasterApi
-                                | districtlive_server::domain::source::SourceType::BandsinTownApi
+                                | districtlive_server::domain::source::SourceType::BandsintownApi
                                 | districtlive_server::domain::source::SourceType::DiceFm
                         )
                     })

@@ -13,3 +13,13 @@ patches:
       - op: replace
         path: /spec/template/spec/containers/0/env/0/value
         value: postgres://app:app@local-postgres:5432/app
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: INGESTION_ENABLED
+          value: "true"
+      - op: add
+        path: /spec/template/spec/containers/0/env/-
+        value:
+          name: ENRICHMENT_ENABLED
+          value: "true"

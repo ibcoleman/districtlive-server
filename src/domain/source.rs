@@ -32,7 +32,7 @@ impl std::fmt::Display for SourceId {
 #[sqlx(type_name = "text", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum SourceType {
     TicketmasterApi,
-    BandsinTownApi,
+    BandsintownApi,
     VenueScraper,
     Manual,
     DiceFm,

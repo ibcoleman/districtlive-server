@@ -10,7 +10,7 @@ export type IngestionRunId = Tagged<string, 'IngestionRunId'>;
 
 // --- String literal union types for enums ---
 export type EventStatus = 'Active' | 'Cancelled' | 'Postponed' | 'Rescheduled';
-export type SourceType = 'TicketmasterApi' | 'BandsinTownApi' | 'VenueScraper' | 'Manual' | 'DiceFm';
+export type SourceType = 'TicketmasterApi' | 'BandsintownApi' | 'VenueScraper' | 'Manual' | 'DiceFm';
 export type IngestionRunStatus = 'Running' | 'Success' | 'Failed';
 export type PriceTier = 'Free' | 'Under15' | 'Price15To30' | 'Over30';
 export type AgeRestriction = 'AllAges' | 'EighteenPlus' | 'TwentyOnePlus';

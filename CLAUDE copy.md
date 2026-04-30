@@ -1,1 +1,0 @@
-/home/ibcoleman/Projects/districtlive-server/CLAUDE copy.md
