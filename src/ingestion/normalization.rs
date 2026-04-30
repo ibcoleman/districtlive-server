@@ -80,6 +80,40 @@ pub fn date_in_eastern_time_str(dt: OffsetDateTime) -> String {
     et.format("%Y-%m-%d").to_string()
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // AC3.7 — is_placeholder returns true for all known placeholder title values.
+    #[test]
+    fn placeholder_titles_are_filtered() {
+        assert!(
+            NormalizationService::is_placeholder("TBA"),
+            "TBA must be a placeholder"
+        );
+        assert!(
+            NormalizationService::is_placeholder("To Be Announced"),
+            "To Be Announced must be a placeholder"
+        );
+        assert!(
+            NormalizationService::is_placeholder("private event"),
+            "private event must be a placeholder"
+        );
+        assert!(
+            NormalizationService::is_placeholder("Coming Soon"),
+            "Coming Soon must be a placeholder"
+        );
+        assert!(
+            NormalizationService::is_placeholder("Sold Out"),
+            "Sold Out must be a placeholder"
+        );
+        assert!(
+            !NormalizationService::is_placeholder("Real Artist Name"),
+            "A real artist name must not be flagged as a placeholder"
+        );
+    }
+}
+
 /// Strip artist names that are obviously placeholder values.
 pub fn clean_artist_name(name: &str) -> Option<String> {
     let lower = name.trim().to_lowercase();

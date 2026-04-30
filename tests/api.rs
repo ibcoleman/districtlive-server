@@ -103,6 +103,21 @@ async fn create_featured_unknown_event_returns_404() {
         .assert_status(StatusCode::NOT_FOUND);
 }
 
+// --- AC3.8: Admin ingest trigger returns 400 when ingestion is disabled ---
+//
+// test_state() uses Config::test_default() which sets ingestion_enabled = false.
+// The handler maps IngestionError::Disabled → 400 BAD_REQUEST.
+#[tokio::test]
+async fn admin_ingest_trigger_when_disabled_returns_400() {
+    let server = test_server();
+    let creds = base64_encode("testuser:testpass");
+    server
+        .post("/api/admin/ingest/trigger")
+        .add_header("Authorization", &format!("Basic {creds}"))
+        .await
+        .assert_status(StatusCode::BAD_REQUEST);
+}
+
 fn base64_encode(s: &str) -> String {
     use base64::Engine;
     base64::engine::general_purpose::STANDARD.encode(s.as_bytes())

@@ -128,3 +128,60 @@ fn attribution_from(event: &NormalizedEvent) -> crate::domain::event_source::Sou
         source_id: None, // Resolved at upsert time
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::{event::RawEvent, source::SourceType};
+    use rust_decimal::Decimal;
+    use time::OffsetDateTime;
+
+    fn make_normalized(slug: &str, source_identifier: &str) -> NormalizedEvent {
+        NormalizedEvent {
+            slug: slug.to_owned(),
+            raw: RawEvent {
+                source_type: SourceType::VenueScraper,
+                source_identifier: Some(source_identifier.to_owned()),
+                source_url: None,
+                title: "Test Artist Live".to_owned(),
+                description: None,
+                venue_name: "Black Cat".to_owned(),
+                venue_address: None,
+                artist_names: vec!["Test Artist".to_owned()],
+                start_time: OffsetDateTime::from_unix_timestamp(1_750_000_000).unwrap(),
+                end_time: None,
+                doors_time: None,
+                min_price: None,
+                max_price: None,
+                ticket_url: None,
+                image_url: None,
+                age_restriction: None,
+                genres: vec![],
+                confidence_score: Decimal::new(70, 2),
+            },
+        }
+    }
+
+    // AC3.3 — Two NormalizedEvents with identical slugs deduplicate to one DeduplicatedEvent.
+    #[test]
+    fn deduplication_merges_matching_slugs() {
+        let service = DeduplicationService;
+
+        // Same slug, different source identifiers — same real-world event from two sources.
+        let event1 = make_normalized("test-artist-live-black-cat-2025-06-15", "source-id-001");
+        let event2 = make_normalized("test-artist-live-black-cat-2025-06-15", "source-id-002");
+
+        let result = service.deduplicate(vec![event1, event2]);
+
+        assert_eq!(
+            result.len(),
+            1,
+            "Two events with matching slugs must deduplicate to exactly one DeduplicatedEvent"
+        );
+        assert_eq!(
+            result[0].sources.len(),
+            2,
+            "Merged event must retain both source attributions"
+        );
+    }
+}
