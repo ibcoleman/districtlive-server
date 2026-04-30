@@ -11,13 +11,15 @@ use std::sync::Arc;
 
 use districtlive_server::adapters::{connect, PgArtistRepository, PgEventRepository, TestHelper};
 use districtlive_server::domain::{
-    artist::EnrichmentStatus,
+    artist::{EnrichmentResult, EnrichmentSource, EnrichmentStatus},
+    error::EnrichmentError,
     event::{AgeRestriction, EventUpsertCommand},
     event_source::SourceAttribution,
     source::SourceType,
     Pagination,
 };
-use districtlive_server::ports::{ArtistRepository, EventRepository};
+use districtlive_server::enrichment::orchestrator::EnrichmentOrchestrator;
+use districtlive_server::ports::{ArtistEnricher, ArtistRepository, EventRepository};
 use rust_decimal::Decimal;
 
 async fn setup() -> (Arc<sqlx::PgPool>, TestHelper) {
@@ -170,6 +172,144 @@ async fn artist_reset_in_progress_to_pending() {
     assert_eq!(
         in_progress, 0,
         "No artists should be IN_PROGRESS after reset"
+    );
+}
+
+// ---- AC4.3: Startup orphan reset ----
+
+#[tokio::test]
+#[ignore]
+async fn startup_reset_clears_in_progress() {
+    let (pool, _helper) = setup().await;
+    let events = PgEventRepository::new(pool.clone());
+    let artists = PgArtistRepository::new(pool.clone());
+
+    // Create an artist via event upsert.
+    events
+        .upsert(test_event_cmd("test-event-orphan"))
+        .await
+        .unwrap();
+
+    // Claim it (marks IN_PROGRESS).
+    let claimed = artists.claim_pending_batch(10).await.unwrap();
+    assert!(!claimed.is_empty());
+
+    // Simulate orphan reset (as if app crashed and restarted).
+    let orchestrator = EnrichmentOrchestrator::new(
+        Arc::new(PgArtistRepository::new(pool.clone())),
+        vec![], // No enrichers needed
+    );
+    orchestrator.reset_orphaned().await.unwrap();
+
+    // Verify artists are back to PENDING.
+    let all = artists
+        .find_all(districtlive_server::domain::Pagination::default())
+        .await
+        .unwrap();
+    let in_progress = all
+        .items
+        .iter()
+        .filter(|a| a.enrichment_status == EnrichmentStatus::InProgress)
+        .count();
+    assert_eq!(
+        in_progress, 0,
+        "All IN_PROGRESS artists should be reset to PENDING"
+    );
+}
+
+// ---- AC4.2: SKIPPED after max_attempts ----
+
+#[tokio::test]
+#[ignore]
+async fn artist_marked_skipped_after_max_attempts() {
+    let (pool, _helper) = setup().await;
+    let events = PgEventRepository::new(pool.clone());
+    let artists = PgArtistRepository::new(pool.clone());
+
+    // Create an artist.
+    events
+        .upsert(test_event_cmd("test-event-skip"))
+        .await
+        .unwrap();
+    let all = artists
+        .find_all(districtlive_server::domain::Pagination::default())
+        .await
+        .unwrap();
+    let artist_id = all.items[0].id;
+
+    // A stub enricher that always returns no result (simulating no match).
+    struct NullEnricher;
+    #[async_trait::async_trait]
+    impl ArtistEnricher for NullEnricher {
+        fn source(&self) -> EnrichmentSource {
+            EnrichmentSource::MusicBrainz
+        }
+        async fn enrich(&self, _name: &str) -> Result<Option<EnrichmentResult>, EnrichmentError> {
+            Ok(None) // Never matches
+        }
+    }
+
+    let orchestrator = EnrichmentOrchestrator::new(
+        Arc::new(PgArtistRepository::new(pool.clone())),
+        vec![Arc::new(NullEnricher)],
+    );
+
+    // Run 4 batches (max_attempts = 3, so 4th run should mark SKIPPED).
+    for _ in 0..4 {
+        orchestrator.enrich_batch().await.unwrap();
+        // Reset eligible FAILED back to PENDING for retry.
+        artists.reset_eligible_failed_to_pending(3).await.unwrap();
+    }
+
+    let artist = artists.find_by_id(artist_id).await.unwrap();
+    assert_eq!(
+        artist.enrichment_status,
+        EnrichmentStatus::Skipped,
+        "Artist should be SKIPPED after exceeding max_attempts"
+    );
+}
+
+// ---- AC4.4: Transient error → FAILED (not SKIPPED) ----
+
+#[tokio::test]
+#[ignore]
+async fn transient_error_marks_failed_not_skipped() {
+    let (pool, _helper) = setup().await;
+    let events = PgEventRepository::new(pool.clone());
+    let artists = PgArtistRepository::new(pool.clone());
+
+    events
+        .upsert(test_event_cmd("test-event-failed"))
+        .await
+        .unwrap();
+
+    struct ErrorEnricher;
+    #[async_trait::async_trait]
+    impl ArtistEnricher for ErrorEnricher {
+        fn source(&self) -> EnrichmentSource {
+            EnrichmentSource::MusicBrainz
+        }
+        async fn enrich(&self, _name: &str) -> Result<Option<EnrichmentResult>, EnrichmentError> {
+            Err(EnrichmentError::Api("transient error".to_owned()))
+        }
+    }
+
+    let orchestrator = EnrichmentOrchestrator::new(
+        Arc::new(PgArtistRepository::new(pool.clone())),
+        vec![Arc::new(ErrorEnricher)],
+    );
+
+    orchestrator.enrich_batch().await.unwrap();
+
+    let all = artists
+        .find_all(districtlive_server::domain::Pagination::default())
+        .await
+        .unwrap();
+    let artist = &all.items[0];
+    assert_eq!(
+        artist.enrichment_status,
+        EnrichmentStatus::Failed,
+        "Transient error should mark FAILED not SKIPPED"
     );
 }
 
