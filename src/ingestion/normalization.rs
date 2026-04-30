@@ -80,6 +80,23 @@ pub fn date_in_eastern_time_str(dt: OffsetDateTime) -> String {
     et.format("%Y-%m-%d").to_string()
 }
 
+/// Strip artist names that are obviously placeholder values.
+pub fn clean_artist_name(name: &str) -> Option<String> {
+    let lower = name.trim().to_lowercase();
+    if matches!(
+        lower.as_str(),
+        "special guest" | "special guests" | "tba" | "to be announced"
+    ) {
+        return None;
+    }
+    let cleaned = name.trim().to_owned();
+    if cleaned.is_empty() {
+        None
+    } else {
+        Some(cleaned)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -111,22 +128,5 @@ mod tests {
             !NormalizationService::is_placeholder("Real Artist Name"),
             "A real artist name must not be flagged as a placeholder"
         );
-    }
-}
-
-/// Strip artist names that are obviously placeholder values.
-pub fn clean_artist_name(name: &str) -> Option<String> {
-    let lower = name.trim().to_lowercase();
-    if matches!(
-        lower.as_str(),
-        "special guest" | "special guests" | "tba" | "to be announced"
-    ) {
-        return None;
-    }
-    let cleaned = name.trim().to_owned();
-    if cleaned.is_empty() {
-        None
-    } else {
-        Some(cleaned)
     }
 }

@@ -345,7 +345,7 @@ async fn ac2_1_list_events_returns_paginated_shape() {
         "Expected at least one event in paginated result"
     );
     // The `items` field exists and is a Vec — verify its type by checking it can be iterated.
-    let _ = result.items.iter().count();
+    let _ = result.items.len();
 }
 
 // ---- AC2.2: Event filters narrow results ----
