@@ -5,7 +5,9 @@ use districtlive_server::{
         PgIngestionRunRepository, PgSourceRepository, PgVenueRepository,
     },
     config::Config,
+    enrichment::{orchestrator::EnrichmentOrchestrator, scheduler::start_enrichment_scheduler},
     http::{create_router, AppState},
+    ports::ArtistEnricher,
 };
 use std::sync::Arc;
 use tokio::signal;
@@ -106,6 +108,48 @@ async fn main() -> anyhow::Result<()> {
                 }
             });
         }
+    }
+
+    // Startup enrichment orphan reset (runs once, regardless of ENRICHMENT_ENABLED).
+    // Resets IN_PROGRESS artists from any previous crashed run back to PENDING.
+    {
+        let artists = state.artists.clone();
+        tokio::spawn(async move {
+            let orchestrator = EnrichmentOrchestrator::new(
+                artists,
+                vec![], // No enrichers needed for orphan reset
+            );
+            if let Err(e) = orchestrator.reset_orphaned().await {
+                tracing::error!(error = %e, "Startup orphan reset failed");
+            }
+        });
+    }
+
+    // Start enrichment scheduler if ENRICHMENT_ENABLED=true.
+    if config.enrichment_enabled {
+        use districtlive_server::adapters::enrichers::{
+            musicbrainz::MusicBrainzEnricher, spotify::SpotifyEnricher,
+        };
+
+        let mut enrichers: Vec<Arc<dyn ArtistEnricher>> = vec![Arc::new(MusicBrainzEnricher::new(
+            http_client.clone(),
+            &config,
+        ))];
+        if let Some(spotify) = SpotifyEnricher::new(http_client.clone(), &config) {
+            enrichers.push(Arc::new(spotify));
+        }
+
+        let orchestrator = Arc::new(EnrichmentOrchestrator::new(
+            state.artists.clone(),
+            enrichers,
+        ));
+
+        let cfg = config.clone();
+        tokio::spawn(async move {
+            if let Err(e) = start_enrichment_scheduler(cfg, orchestrator).await {
+                tracing::error!(error = %e, "Failed to start enrichment scheduler");
+            }
+        });
     }
 
     let bind_addr = config.bind_addr;
