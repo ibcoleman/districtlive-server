@@ -2,6 +2,7 @@
 //!
 //! Rate-limited to 1 request per second per MusicBrainz terms of service.
 //! Uses Jaro-Winkler similarity to validate name matches.
+// pattern: Imperative Shell
 
 use async_trait::async_trait;
 use reqwest::Client;
@@ -26,18 +27,15 @@ const MB_SERVER_SCORE_THRESHOLD: u32 = 80;
 pub struct MusicBrainzEnricher {
     client: Client,
     confidence_threshold: f64,
-    user_agent: String,
 }
 
 impl MusicBrainzEnricher {
     pub fn new(client: Client, config: &Config) -> Self {
+        // The shared reqwest::Client is configured with User-Agent in main.rs,
+        // satisfying the MusicBrainz ToS requirement for contact info in the user agent.
         Self {
             client,
             confidence_threshold: config.musicbrainz_confidence_threshold,
-            user_agent: format!(
-                "districtlive-server/{} (https://districtlive.com)",
-                env!("CARGO_PKG_VERSION")
-            ),
         }
     }
 
@@ -96,7 +94,6 @@ impl ArtistEnricher for MusicBrainzEnricher {
         let response = self
             .client
             .get(MB_SEARCH_URL)
-            .header("User-Agent", &self.user_agent)
             .query(&[
                 ("query", name),
                 ("fmt", "json"),

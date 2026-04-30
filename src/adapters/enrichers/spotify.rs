@@ -3,6 +3,7 @@
 //! Disabled by default (`Config.spotify_enabled = false`).
 //! Uses OAuth2 client credentials flow with token caching.
 //! Handles HTTP 429 rate limiting with Retry-After backoff.
+// pattern: Imperative Shell
 
 use async_trait::async_trait;
 use reqwest::Client;
@@ -84,17 +85,23 @@ impl SpotifyEnricher {
             expires_in: u64,
         }
 
-        let response: TokenResponse = self
+        let raw = self
             .client
             .post(SPOTIFY_TOKEN_URL)
             .basic_auth(&self.client_id, Some(&self.client_secret))
             .form(&[("grant_type", "client_credentials")])
             .send()
             .await
-            .map_err(EnrichmentError::Http)?
-            .json()
-            .await
             .map_err(EnrichmentError::Http)?;
+
+        if !raw.status().is_success() {
+            return Err(EnrichmentError::Api(format!(
+                "Spotify token request returned status {}",
+                raw.status()
+            )));
+        }
+
+        let response: TokenResponse = raw.json().await.map_err(EnrichmentError::Http)?;
 
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)

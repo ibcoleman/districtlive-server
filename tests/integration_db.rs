@@ -178,7 +178,6 @@ async fn artist_reset_in_progress_to_pending() {
 // ---- AC4.3: Startup orphan reset ----
 
 #[tokio::test]
-#[ignore]
 async fn startup_reset_clears_in_progress() {
     let (pool, _helper) = setup().await;
     let events = PgEventRepository::new(pool.clone());
@@ -220,7 +219,6 @@ async fn startup_reset_clears_in_progress() {
 // ---- AC4.2: SKIPPED after max_attempts ----
 
 #[tokio::test]
-#[ignore]
 async fn artist_marked_skipped_after_max_attempts() {
     let (pool, _helper) = setup().await;
     let events = PgEventRepository::new(pool.clone());
@@ -235,7 +233,12 @@ async fn artist_marked_skipped_after_max_attempts() {
         .find_all(districtlive_server::domain::Pagination::default())
         .await
         .unwrap();
-    let artist_id = all.items[0].id;
+    let artist_id = all
+        .items
+        .iter()
+        .find(|a| a.name == "Test Artist")
+        .expect("test artist not found")
+        .id;
 
     // A stub enricher that always returns no result (simulating no match).
     struct NullEnricher;
@@ -272,7 +275,6 @@ async fn artist_marked_skipped_after_max_attempts() {
 // ---- AC4.4: Transient error → FAILED (not SKIPPED) ----
 
 #[tokio::test]
-#[ignore]
 async fn transient_error_marks_failed_not_skipped() {
     let (pool, _helper) = setup().await;
     let events = PgEventRepository::new(pool.clone());
@@ -305,7 +307,11 @@ async fn transient_error_marks_failed_not_skipped() {
         .find_all(districtlive_server::domain::Pagination::default())
         .await
         .unwrap();
-    let artist = &all.items[0];
+    let artist = all
+        .items
+        .iter()
+        .find(|a| a.name == "Test Artist")
+        .expect("test artist not found");
     assert_eq!(
         artist.enrichment_status,
         EnrichmentStatus::Failed,

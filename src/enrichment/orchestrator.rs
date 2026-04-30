@@ -14,7 +14,7 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 use crate::{
-    domain::artist::{Artist, ArtistId, EnrichmentStatus},
+    domain::artist::{Artist, EnrichmentStatus},
     ports::{ArtistEnricher, ArtistRepository},
 };
 
@@ -91,13 +91,6 @@ impl EnrichmentOrchestrator {
     }
 
     async fn process_artist(&self, artist: Artist) {
-        // Check if this artist has exceeded max attempts (transition to SKIPPED).
-        if artist.enrichment_attempts > self.max_attempts {
-            self.transition(artist.id, EnrichmentStatus::Skipped, None)
-                .await;
-            return;
-        }
-
         // Run all enrichers sequentially, collecting results.
         let mut any_succeeded = false;
         let mut any_threw = false;
@@ -148,7 +141,7 @@ impl EnrichmentOrchestrator {
         };
 
         self.transition(
-            artist.id,
+            artist,
             new_status,
             if any_succeeded { Some(merged) } else { None },
         )
@@ -157,19 +150,10 @@ impl EnrichmentOrchestrator {
 
     async fn transition(
         &self,
-        id: ArtistId,
+        mut artist: Artist,
         status: EnrichmentStatus,
         result: Option<MergedResult>,
     ) {
-        // Load current artist.
-        let mut artist = match self.artists.find_by_id(id).await {
-            Ok(a) => a,
-            Err(e) => {
-                tracing::error!(error = %e, "Failed to load artist for enrichment transition");
-                return;
-            }
-        };
-
         artist.enrichment_status = status;
         // Always increment attempts so the SKIPPED threshold is eventually reached.
         // This counter tracks how many enrichment cycles have been attempted, regardless
@@ -203,7 +187,8 @@ impl EnrichmentOrchestrator {
     }
 }
 
-/// Accumulated enrichment results from multiple enrichers.
+/// Accumulated enrichment results from multiple enrichers. Starts empty; call `apply()` for each
+/// enricher result before passing to `transition()`.
 #[derive(Default)]
 struct MergedResult {
     canonical_name: Option<String>,
