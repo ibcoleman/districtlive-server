@@ -1,3 +1,5 @@
+// pattern: Imperative Shell
+
 pub mod admin;
 pub mod artists;
 pub mod dto;
