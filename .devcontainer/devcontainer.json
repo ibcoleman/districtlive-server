@@ -4,16 +4,14 @@
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/common-utils:2": {},
-    "ghcr.io/devcontainers-contrib/features/just:1": {},
-    "ghcr.io/devcontainers-contrib/features/homebrew-package:1": {},
-    "ghcr.io/devcontainers-contrib/features/pnpm:2": {}
+    "ghcr.io/devcontainers/features/node:1": {}
   },
   "remoteEnv": {
     "ENABLE_LSP_TOOL": "1",
     "DATABASE_URL": "postgres://app:app@localhost:5432/app",
     "RUST_LOG": "info"
   },
-  "postCreateCommand": "brew install bazelisk kind kubectl tilt && rustup component add rust-analyzer clippy rustfmt",
+  "postCreateCommand": "bash /workspaces/districtlive-server/.devcontainer/post-create.sh",
   "forwardPorts": [8080, 5432],
   "customizations": {
     "vscode": {

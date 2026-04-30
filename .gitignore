@@ -26,6 +26,7 @@ frontend/dist
 # Local env
 .env
 .env.local
+.envrc 
 
 # Tilt
 tilt_modules
