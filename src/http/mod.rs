@@ -82,7 +82,10 @@ pub fn create_router(state: AppState) -> axum::Router {
         .route("/api/featured", get(featured::get_featured))
         // Static assets from embedded frontend
         .route("/", get(index))
-        .route("/assets/{*path}", get(asset));
+        .route("/assets/{*path}", get(asset))
+        // Admin HTML pages (auth handled client-side via sessionStorage)
+        .route("/admin/ingestion", get(ingestion_page))
+        .route("/admin/featured", get(featured_page));
 
     public_router
         .merge(admin_router)
@@ -115,5 +118,25 @@ async fn asset(Path(path): Path<String>) -> Response {
                 .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response())
         }
         None => StatusCode::NOT_FOUND.into_response(),
+    }
+}
+
+async fn ingestion_page() -> Response {
+    match Assets::get("src/pages/ingestion/index.html") {
+        Some(f) => Response::builder()
+            .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+            .body(Body::from(f.data.into_owned()))
+            .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response()),
+        None => (StatusCode::NOT_FOUND, "ingestion page not found").into_response(),
+    }
+}
+
+async fn featured_page() -> Response {
+    match Assets::get("src/pages/featured/index.html") {
+        Some(f) => Response::builder()
+            .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+            .body(Body::from(f.data.into_owned()))
+            .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR.into_response()),
+        None => (StatusCode::NOT_FOUND, "featured page not found").into_response(),
     }
 }
