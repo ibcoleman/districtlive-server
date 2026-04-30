@@ -1,5 +1,6 @@
 pub mod connectors;
 pub mod db;
+pub mod enrichers;
 pub mod pg_artists;
 pub mod pg_events;
 pub mod pg_featured;
