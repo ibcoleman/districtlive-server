@@ -110,13 +110,25 @@ fn comet_ping_pong_detail_enriches_event() {
     assert!(!events.is_empty(), "Need at least 1 event from listing");
     let (mut event, _) = events.remove(0);
 
+    // Verify detail page starts without enrichment fields
+    assert!(event.min_price.is_none(), "Price should be absent before detail fetch");
+    assert!(event.description.is_none(), "Description should be absent before detail fetch");
+
     CometPingPongScraper::parse_detail(detail_html, &mut event);
 
-    // After detail, description or price may be populated (depends on fixture content)
-    // Just assert the method ran without panicking and the event is still valid
+    // The fixture (comet-ping-pong-detail.html) contains "$10" in .uui-event_tickets-wrapper
+    // and a description about "New Zealand indie rock band The Beths" in .confirm-description.
     assert!(
-        !event.title.is_empty(),
-        "Title should still be present after detail enrichment"
+        event.min_price.is_some(),
+        "parse_detail should populate price from .uui-event_tickets-wrapper ($10 in fixture)"
+    );
+    assert!(
+        event.description.is_some(),
+        "parse_detail should populate description from .confirm-description"
+    );
+    assert!(
+        event.description.as_deref().unwrap_or("").contains("New Zealand"),
+        "Description should contain fixture text about New Zealand"
     );
 }
 
