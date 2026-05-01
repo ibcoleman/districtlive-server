@@ -11,6 +11,7 @@ use time::OffsetDateTime;
 use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
+    adapters::connectors::resolve_url,
 };
 
 const VENUE_NAME: &str = "Pie Shop";
@@ -70,7 +71,7 @@ impl PieShopScraper {
                 .select(&link_sel)
                 .next()
                 .and_then(|e| e.value().attr("href"))
-                .map(str::to_owned)
+                .map(|href| resolve_url(href, BASE_URL))
                 .unwrap_or_default();
 
             let start_time = match parse_pie_shop_datetime(&date_text) {

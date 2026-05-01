@@ -11,10 +11,12 @@ use time::OffsetDateTime;
 use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
+    adapters::connectors::resolve_url,
 };
 
 const VENUE_NAME: &str = "Comet Ping Pong";
 const VENUE_ADDRESS: &str = "5037 Connecticut Ave NW, Washington, DC 20008";
+const BASE_ORIGIN: &str = "https://calendar.rediscoverfirebooking.com";
 const BASE_URL: &str = "https://calendar.rediscoverfirebooking.com/cpp-shows";
 
 pub struct CometPingPongScraper {
@@ -80,7 +82,7 @@ impl CometPingPongScraper {
                 .select(&link_sel)
                 .next()
                 .and_then(|e| e.value().attr("href"))
-                .map(str::to_owned)
+                .map(|href| resolve_url(href, BASE_ORIGIN))
                 .unwrap_or_default();
 
             let start_time = match parse_comet_datetime(&date_text, &time_text) {

@@ -21,3 +21,12 @@ pub use rhizome_dc::RhizomeDcScraper;
 pub use seven_drum_city::SevenDrumCityScraper;
 pub use ticketmaster::TicketmasterConnector;
 pub use union_stage_presents::UnionStagePresentsScraper;
+
+// Given an href and origin, return a full URL
+fn resolve_url(href: &str, origin: &str) -> String {
+    if href.starts_with('/') {
+        format!("{origin}{href}")
+    } else {
+        href.to_owned()
+    }
+}
