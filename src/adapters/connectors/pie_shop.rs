@@ -202,7 +202,7 @@ fn generate_source_id(title: &str, date_text: &str) -> String {
 fn parse_pie_shop_datetime(date_text: &str) -> Option<OffsetDateTime> {
     // Try common date formats
     let formats = [
-        time::macros::format_description!("[month repr:long] [day], [year]"),
+        time::macros::format_description!("[month repr:long] [day padding:none], [year]"),
         time::macros::format_description!("[month]/[day]/[year]"),
     ];
 

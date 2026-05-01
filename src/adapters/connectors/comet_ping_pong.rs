@@ -210,7 +210,7 @@ fn generate_source_id(title: &str, date_text: &str) -> String {
 
 fn parse_comet_datetime(date_text: &str, _time_text: &str) -> Option<OffsetDateTime> {
     // Date format: "MMMM d, yyyy" (e.g. "March 21, 2026")
-    let fmt = time::macros::format_description!("[month repr:long] [day], [year]");
+    let fmt = time::macros::format_description!("[month repr:long] [day padding:none], [year]");
     time::Date::parse(date_text, fmt).ok().map(|date| {
         let time = time::Time::from_hms(20, 0, 0).unwrap_or(time::Time::MIDNIGHT);
         OffsetDateTime::new_utc(date, time)
