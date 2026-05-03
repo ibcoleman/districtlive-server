@@ -1,6 +1,6 @@
 # HTTP Layer
 
-Last verified: 2026-04-30
+Last verified: 2026-05-02
 
 ## Purpose
 Thin Axum layer: routing, auth middleware, request extraction, and JSON response mapping.
@@ -46,8 +46,10 @@ No business logic — handlers delegate to port-backed adapters in `AppState`.
 
 ## Invariants
 - `EventDto::from_event()` is used at every event-to-DTO conversion site (no inline mapping).
+- `EventSourceDto::from_event_source()` is the single conversion point for source attributions on `GET /api/events/{id}`.
 - `ArtistDto` exposes `canonical_name` and `image_url` but not `enrichment_status`, `mb_tags`, or `spotify_genres`.
-- Hydration errors: `Database` errors propagate; `NotFound` errors for related venue/artists are swallowed (event returns with null venue / empty artists).
+- Hydration errors: `Database` errors propagate; `NotFound` errors for related venue/artists/sources are swallowed (event returns with null venue / empty artists / empty sources).
+- `EventDetailDto.sources` is populated via `EventRepository::find_sources_by_event_id()` — never left as a placeholder empty vec.
 
 ## Key Files
 - `mod.rs` — router and AppState definition
