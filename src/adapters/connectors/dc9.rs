@@ -11,6 +11,7 @@ use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
 };
+use super::{generate_source_id, select_text};
 
 const VENUE_NAME: &str = "DC9";
 const VENUE_ADDRESS: &str = "1940 9th St NW, Washington, DC 20001";
@@ -42,31 +43,19 @@ impl Dc9Scraper {
         let current_year = chrono::Utc::now().year() as u32;
 
         for listing in document.select(&listing_sel) {
-            let title = listing
-                .select(&title_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let title = select_text(listing, &title_sel);
 
             if title.is_empty() {
                 continue;
             }
 
-            let date_text = listing
-                .select(&date_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let date_text = select_text(listing, &date_sel);
 
             if date_text.is_empty() {
                 continue;
             }
 
-            let doors_text = listing
-                .select(&doors_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let doors_text = select_text(listing, &doors_sel);
 
             let event_date = parse_dc9_date(&date_text, current_year);
             let doors_time = parse_time_from_doors(&doors_text, "Doors");
@@ -143,14 +132,6 @@ impl SourceConnector for Dc9Scraper {
     fn health_check(&self) -> bool {
         true
     }
-}
-
-fn generate_source_id(title: &str, date_text: &str) -> String {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-    let mut hasher = DefaultHasher::new();
-    format!("{}|{}", title, date_text).hash(&mut hasher);
-    format!("{:016x}", hasher.finish())
 }
 
 fn parse_dc9_date(date_text: &str, current_year: u32) -> Option<Date> {

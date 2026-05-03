@@ -9,10 +9,10 @@ use std::str::FromStr;
 use time::OffsetDateTime;
 
 use crate::{
-    adapters::connectors::resolve_url,
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
 };
+use super::{generate_source_id, resolve_url, select_text};
 
 const VENUE_NAME: &str = "Pie Shop";
 const VENUE_ADDRESS: &str = "3301 Georgia Ave NW, Washington, DC 20010";
@@ -51,21 +51,13 @@ impl PieShopScraper {
         let mut events = Vec::new();
 
         for item in document.select(&item_sel) {
-            let title = item
-                .select(&title_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let title = select_text(item, &title_sel);
 
             if title.is_empty() {
                 continue;
             }
 
-            let date_text = item
-                .select(&date_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let date_text = select_text(item, &date_sel);
 
             let detail_url = item
                 .select(&link_sel)
@@ -190,14 +182,6 @@ impl SourceConnector for PieShopScraper {
     fn health_check(&self) -> bool {
         true
     }
-}
-
-fn generate_source_id(title: &str, date_text: &str) -> String {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-    let mut hasher = DefaultHasher::new();
-    format!("{}|{}", title, date_text).hash(&mut hasher);
-    format!("{:016x}", hasher.finish())
 }
 
 fn parse_pie_shop_datetime(date_text: &str) -> Option<OffsetDateTime> {

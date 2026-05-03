@@ -12,6 +12,7 @@ use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
 };
+use super::{generate_source_id, select_text};
 
 const VENUE_NAME: &str = "Black Cat";
 const VENUE_ADDRESS: &str = "1811 14th St NW, Washington, DC 20009";
@@ -40,21 +41,13 @@ impl BlackCatScraper {
         let current_year = chrono::Utc::now().format("%Y").to_string();
 
         for show in document.select(&show_sel) {
-            let title = show
-                .select(&title_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let title = select_text(show, &title_sel);
 
             if title.is_empty() {
                 continue;
             }
 
-            let date_text = show
-                .select(&date_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let date_text = select_text(show, &date_sel);
 
             let date_with_year = format!("{} {}", date_text, current_year);
             let start_time = parse_black_cat_date(&date_with_year).ok_or_else(|| {
@@ -130,14 +123,6 @@ impl SourceConnector for BlackCatScraper {
     fn health_check(&self) -> bool {
         true
     }
-}
-
-fn generate_source_id(title: &str, date_text: &str) -> String {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-    let mut hasher = DefaultHasher::new();
-    format!("{}|{}", title, date_text).hash(&mut hasher);
-    format!("{:016x}", hasher.finish())
 }
 
 fn parse_black_cat_date(s: &str) -> Option<OffsetDateTime> {

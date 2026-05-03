@@ -11,6 +11,7 @@ use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
 };
+use super::{generate_source_id, select_text};
 
 const VENUE_NAME: &str = "The Pocket (7 Drum City)";
 const VENUE_ADDRESS: &str = "2611 Bladensburg Rd NE, Washington, DC 20018";
@@ -54,23 +55,9 @@ impl SevenDrumCityScraper {
                 continue;
             }
 
-            let month = container
-                .select(&month_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
-
-            let day = container
-                .select(&day_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
-
-            let time_text = container
-                .select(&time_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let month = select_text(container, &month_sel);
+            let day = select_text(container, &day_sel);
+            let time_text = select_text(container, &time_sel);
 
             if month.is_empty() || day.is_empty() {
                 continue;
@@ -140,14 +127,6 @@ impl SourceConnector for SevenDrumCityScraper {
     fn health_check(&self) -> bool {
         true
     }
-}
-
-fn generate_source_id(title: &str, date_str: &str) -> String {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-    let mut hasher = DefaultHasher::new();
-    format!("{}|{}", title, date_str).hash(&mut hasher);
-    format!("{:016x}", hasher.finish())
 }
 
 fn parse_seven_drum_city_date(date_str: &str, time_text: &str) -> Option<OffsetDateTime> {

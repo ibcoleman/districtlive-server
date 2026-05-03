@@ -11,6 +11,7 @@ use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
 };
+use super::{generate_source_id, select_text};
 
 const VENUE_NAME: &str = "Rhizome DC";
 const VENUE_ADDRESS: &str = "6950 Maple St NW, Washington, DC 20012";
@@ -40,11 +41,7 @@ impl RhizomeDcScraper {
         let mut events = Vec::new();
 
         for event in document.select(&event_sel) {
-            let title = event
-                .select(&title_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let title = select_text(event, &title_sel);
 
             if title.is_empty() {
                 continue;
@@ -56,11 +53,7 @@ impl RhizomeDcScraper {
                 .and_then(|e| e.value().attr("datetime"))
                 .unwrap_or("");
 
-            let time_text = event
-                .select(&time_sel)
-                .next()
-                .map(|e| e.text().collect::<String>().trim().to_owned())
-                .unwrap_or_default();
+            let time_text = select_text(event, &time_sel);
 
             let start_time = parse_rhizome_datetime(date_attr, &time_text).ok_or_else(|| {
                 IngestionError::Parse(format!(
@@ -129,14 +122,6 @@ impl SourceConnector for RhizomeDcScraper {
     fn health_check(&self) -> bool {
         true
     }
-}
-
-fn generate_source_id(title: &str, date_attr: &str) -> String {
-    use std::collections::hash_map::DefaultHasher;
-    use std::hash::{Hash, Hasher};
-    let mut hasher = DefaultHasher::new();
-    format!("{}|{}", title, date_attr).hash(&mut hasher);
-    format!("{:016x}", hasher.finish())
 }
 
 fn parse_rhizome_datetime(date_attr: &str, time_text: &str) -> Option<OffsetDateTime> {
