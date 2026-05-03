@@ -8,11 +8,11 @@ use scraper::{Html, Selector};
 use std::str::FromStr;
 use time::OffsetDateTime;
 
+use super::{generate_source_id, resolve_url, select_text};
 use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
 };
-use super::{generate_source_id, resolve_url, select_text};
 
 const VENUE_NAME: &str = "Pie Shop";
 const VENUE_ADDRESS: &str = "3301 Georgia Ave NW, Washington, DC 20010";

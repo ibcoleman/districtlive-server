@@ -8,11 +8,11 @@ use scraper::{Html, Selector};
 use std::str::FromStr;
 use time::OffsetDateTime;
 
+use super::{generate_source_id, select_text};
 use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
 };
-use super::{generate_source_id, select_text};
 
 fn confidence_score() -> Decimal {
     Decimal::new(75, 2)

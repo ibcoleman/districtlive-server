@@ -7,11 +7,11 @@ use rust_decimal::Decimal;
 use scraper::{Html, Selector};
 use time::OffsetDateTime;
 
+use super::{generate_source_id, select_text};
 use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
 };
-use super::{generate_source_id, select_text};
 
 const VENUE_NAME: &str = "The Pocket (7 Drum City)";
 const VENUE_ADDRESS: &str = "2611 Bladensburg Rd NE, Washington, DC 20018";

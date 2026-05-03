@@ -8,11 +8,11 @@ use rust_decimal::Decimal;
 use scraper::{Html, Selector};
 use time::OffsetDateTime;
 
+use super::{generate_source_id, select_text};
 use crate::{
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
 };
-use super::{generate_source_id, select_text};
 
 const VENUE_NAME: &str = "Black Cat";
 const VENUE_ADDRESS: &str = "1811 14th St NW, Washington, DC 20009";

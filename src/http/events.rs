@@ -117,12 +117,11 @@ pub async fn get_event(
     let related_dtos = related.iter().map(EventDto::from_event).collect();
 
     // Load source attributions for this event.
-    let sources: Vec<EventSourceDto> =
-        match state.events.find_sources_by_event_id(event.id).await {
-            Ok(list) => list.iter().map(EventSourceDto::from_event_source).collect(),
-            Err(crate::domain::error::RepoError::NotFound) => vec![],
-            Err(e) => return Err(e.into()),
-        };
+    let sources: Vec<EventSourceDto> = match state.events.find_sources_by_event_id(event.id).await {
+        Ok(list) => list.iter().map(EventSourceDto::from_event_source).collect(),
+        Err(crate::domain::error::RepoError::NotFound) => vec![],
+        Err(e) => return Err(e.into()),
+    };
 
     Ok(Json(EventDetailDto {
         event: event_dto,
