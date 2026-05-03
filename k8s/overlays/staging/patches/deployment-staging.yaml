@@ -1,0 +1,38 @@
+- op: replace
+  path: /spec/template/spec/containers/0/env/0
+  value:
+    name: DATABASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: districtlive-secrets
+        key: DATABASE_URL
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: ADMIN_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: districtlive-secrets
+        key: ADMIN_USERNAME
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: districtlive-secrets
+        key: ADMIN_PASSWORD
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: INGESTION_ENABLED
+    value: "true"
+- op: add
+  path: /spec/template/spec/containers/0/env/-
+  value:
+    name: ENRICHMENT_ENABLED
+    value: "true"
+- op: add
+  path: /spec/template/spec/imagePullSecrets
+  value:
+    - name: ghcr-pull-secret
