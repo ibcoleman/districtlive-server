@@ -2,6 +2,52 @@
 
 Last verified: 2026-04-30
 
+## Quick Start: Where to Begin
+
+### New feature (touches multiple files or involves architectural decisions)
+1. **Opus** — `/start-design-plan` (describe the idea; Claude will clarify, investigate, and brainstorm options)
+2. `/clear`
+3. **Sonnet** — `/start-implementation-plan @docs/design-plans/YYYY-MM-DD-feature.md`
+4. `/clear`
+5. **Sonnet** — `/execute-implementation-plan @docs/implementation-plans/YYYY-MM-DD-feature/`
+
+### New feature (small — you know exactly what to change, ≤ a few files)
+Skip the workflow. Just implement it directly. No ceremony needed.
+
+### Rough idea (not sure what to build yet, or need to think it through)
+- **Opus** — `/flesh-it-out` — clarifies and sharpens the idea before any design work starts
+- Then proceed to `/start-design-plan` when ready
+
+### Bug fix
+- **Opus** — `/systematic-debugging` first — finds root cause before proposing a fix
+- Small fix: implement directly after diagnosis
+- Larger fix (multiple files, uncertain blast radius): run a mini `/start-design-plan` cycle
+
+### New project (greenfield)
+1. **Opus** — `/flesh-it-out` — settle what you're actually building
+2. **Opus** — `/start-design-plan` — architecture and phases
+3. Continue with plan → execute as above
+
+### Reviewing work
+- After a task: **Sonnet** — `/requesting-code-review`
+- After a session: **Haiku/Sonnet** — `/review-session`
+- After several sessions: **Sonnet** — `/review-recent-sessions`
+
+### Model quick-reference
+| Work type | Model |
+|---|---|
+| Design, architecture, brainstorming, debugging | **Opus** |
+| Implementation, planning, code review, tests | **Sonnet** |
+| File searches, grep, log scanning, lookups | **Haiku** |
+
+### Other useful skills (invoke anytime)
+| Skill | When to use |
+|---|---|
+| `/brainstorming` | Standalone brainstorm, not committing to a design yet |
+| `/asking-clarifying-questions` | Standalone clarification pass |
+| `/retrospective` | When a dev attempt hit a dead end |
+| `/how-to-customize` | Understand `.ed3d/` guidance files |
+
 ## Tech Stack
 - Language: Rust (edition 2021)
 - Web framework: Axum
