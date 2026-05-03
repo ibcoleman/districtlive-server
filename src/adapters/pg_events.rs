@@ -11,8 +11,9 @@ use crate::domain::{
         AgeRestriction, Event, EventFilters, EventId, EventStatus, EventType, EventUpsertCommand,
         PriceTier,
     },
+    event_source::{EventSource, EventSourceId},
     slugify,
-    source::SourceType,
+    source::{SourceId, SourceType},
     venue::VenueId,
     Page, Pagination,
 };
@@ -381,9 +382,27 @@ impl EventRepository for PgEventRepository {
             .map(|(venue_id, count)| (VenueId(venue_id), count))
             .collect())
     }
+
+    async fn find_sources_by_event_id(
+        &self,
+        event_id: EventId,
+    ) -> Result<Vec<EventSource>, RepoError> {
+        let rows = sqlx::query_as::<_, EventSourceRow>(
+            r#"SELECT id, event_id, source_type, source_identifier, source_url,
+                      last_scraped_at, confidence_score, created_at, source_id
+               FROM event_sources
+               WHERE event_id = $1
+               ORDER BY created_at ASC"#,
+        )
+        .bind(event_id.0)
+        .fetch_all(&*self.pool)
+        .await?;
+
+        Ok(rows.into_iter().map(EventSource::from).collect())
+    }
 }
 
-// ---- Row type ----
+// ---- Row types ----
 
 #[derive(sqlx::FromRow)]
 struct EventRow {
@@ -436,6 +455,35 @@ impl From<EventRow> for Event {
             event_type: r.event_type,
             created_at: r.created_at,
             updated_at: r.updated_at,
+        }
+    }
+}
+
+#[derive(sqlx::FromRow)]
+struct EventSourceRow {
+    id: Uuid,
+    event_id: Uuid,
+    source_type: SourceType,
+    source_identifier: Option<String>,
+    source_url: Option<String>,
+    last_scraped_at: Option<OffsetDateTime>,
+    confidence_score: rust_decimal::Decimal,
+    created_at: OffsetDateTime,
+    source_id: Option<Uuid>,
+}
+
+impl From<EventSourceRow> for EventSource {
+    fn from(r: EventSourceRow) -> Self {
+        EventSource {
+            id: EventSourceId(r.id),
+            event_id: EventId(r.event_id),
+            source_type: r.source_type,
+            source_identifier: r.source_identifier,
+            source_url: r.source_url,
+            last_scraped_at: r.last_scraped_at,
+            confidence_score: r.confidence_score,
+            created_at: r.created_at,
+            source_id: r.source_id.map(SourceId),
         }
     }
 }

@@ -3,6 +3,7 @@ use async_trait::async_trait;
 use crate::domain::{
     error::RepoError,
     event::{Event, EventFilters, EventId, EventUpsertCommand},
+    event_source::EventSource,
     Page, Pagination,
 };
 
@@ -47,4 +48,10 @@ pub trait EventRepository: Send + Sync {
     async fn count_upcoming_by_venue(
         &self,
     ) -> Result<Vec<(crate::domain::venue::VenueId, i64)>, RepoError>;
+
+    /// Return all source attributions recorded for a given event.
+    async fn find_sources_by_event_id(
+        &self,
+        event_id: EventId,
+    ) -> Result<Vec<EventSource>, RepoError>;
 }

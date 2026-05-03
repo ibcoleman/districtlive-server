@@ -8,6 +8,7 @@ use districtlive_server::{
         artist::{Artist, ArtistId},
         error::RepoError,
         event::{Event, EventFilters, EventId, EventUpsertCommand},
+        event_source::EventSource,
         featured_event::{FeaturedEvent, FeaturedEventId},
         ingestion_run::{IngestionRun, IngestionRunId},
         source::{Source, SourceId},
@@ -77,6 +78,9 @@ impl EventRepository for EmptyEventRepository {
         Ok(vec![])
     }
     async fn count_upcoming_by_venue(&self) -> Result<Vec<(VenueId, i64)>, RepoError> {
+        Ok(vec![])
+    }
+    async fn find_sources_by_event_id(&self, _id: EventId) -> Result<Vec<EventSource>, RepoError> {
         Ok(vec![])
     }
 }

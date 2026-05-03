@@ -12,7 +12,7 @@ use crate::{
     domain::event::{EventFilters, EventStatus},
     domain::Pagination,
     http::{
-        dto::{EventDetailDto, EventDto, PageDto},
+        dto::{EventDetailDto, EventDto, EventSourceDto, PageDto},
         error::ApiError,
         AppState,
     },
@@ -116,11 +116,19 @@ pub async fn get_event(
 
     let related_dtos = related.iter().map(EventDto::from_event).collect();
 
+    // Load source attributions for this event.
+    let sources: Vec<EventSourceDto> =
+        match state.events.find_sources_by_event_id(event.id).await {
+            Ok(list) => list.iter().map(EventSourceDto::from_event_source).collect(),
+            Err(crate::domain::error::RepoError::NotFound) => vec![],
+            Err(e) => return Err(e.into()),
+        };
+
     Ok(Json(EventDetailDto {
         event: event_dto,
         description: event.description,
         end_time: event.end_time,
-        sources: vec![], // TODO: load event_sources
+        sources,
         related_events: related_dtos,
     }))
 }

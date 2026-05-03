@@ -112,6 +112,15 @@ pub struct EventSourceDto {
     pub last_scraped_at: Option<OffsetDateTime>,
 }
 
+impl EventSourceDto {
+    pub fn from_event_source(s: &crate::domain::event_source::EventSource) -> Self {
+        EventSourceDto {
+            source_type: s.source_type,
+            last_scraped_at: s.last_scraped_at,
+        }
+    }
+}
+
 // Note: #[serde(flatten)] is used here intentionally. The house style prohibits
 // #[serde(flatten)] when serde_ignored is involved (deserialization path), because
 // it breaks typo detection. EventDetailDto is a *response-only* type: it is only
