@@ -1,6 +1,6 @@
 # districtlive-server
 
-Last verified: 2026-04-30
+Last verified: 2026-05-04
 
 ## Quick Start: Where to Begin
 
@@ -56,6 +56,7 @@ Skip the workflow. Just implement it directly. No ceremony needed.
 - Task runner: `just` (Justfile)
 - Frontend: TypeScript + Vite (multi-entry), embedded in binary via rust-embed
 - Testing: cargo test + integration tests requiring live Postgres
+- Deploy: Kustomize overlays (`k8s/`), GitHub Actions (`.github/workflows/deploy.yml`), DOKS staging cluster
 
 ## Commands
 - `just check` — cargo clippy + fmt check
@@ -75,7 +76,11 @@ Skip the workflow. Just implement it directly. No ceremony needed.
 - `migrations/` — immutable sqlx migration files (never edit existing)
 - `frontend/` — TypeScript SPA, compiled into `frontend/dist/` and embedded
 - `tests/` — integration tests (require live Postgres)
+- `k8s/base/` — base Kubernetes manifests (deployment, service, postgres statefulset)
+- `k8s/overlays/local/` and `k8s/overlays/staging/` — environment-specific kustomize overlays
+- `.github/workflows/` — CI (`ci.yml`), mutation tests (`mutants.yml`), staging deploy (`deploy.yml`)
 - `docs/design-plans/` and `docs/implementation-plans/` — design artifacts
+- `docs/staging-setup.md` — DOKS staging cluster bootstrap runbook
 
 ## Architecture
 Hexagonal / ports-and-adapters:
@@ -109,6 +114,7 @@ Hexagonal / ports-and-adapters:
 | `MUSICBRAINZ_CONFIDENCE_THRESHOLD` | no | `0.7` | Jaro-Winkler match threshold |
 
 ## Boundaries
-- Safe to edit: `src/`, `frontend/src/`, `migrations/` (add new only)
+- Safe to edit: `src/`, `frontend/src/`, `migrations/` (add new only), `k8s/` manifests, `.github/workflows/`
 - Never edit: existing migration files, `.sqlx/` cache (regenerate via `cargo sqlx prepare`)
 - Never touch: `Cargo.lock` without reason (committed, intentional)
+- Staging deploys: triggered automatically by `deploy.yml` on successful `ci` workflow run on `main`; image tag is the commit SHA (never `latest`)
