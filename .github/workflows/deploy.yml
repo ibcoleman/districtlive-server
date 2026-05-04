@@ -1,0 +1,111 @@
+name: deploy
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/ibcoleman/districtlive-server
+      IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: bazelbuild/setup-bazelisk@v3
+
+      - name: Cache Bazel artifacts
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/bazel
+          key: ${{ runner.os }}-bazel-${{ hashFiles('MODULE.bazel.lock', 'Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bazel-
+
+      - name: Install frontend dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build frontend
+        run: pnpm -F districtlive-server-frontend build
+
+      - name: Build app binary
+        run: bazel build //:app
+
+      - name: Copy binary to workspace root
+        run: cp bazel-bin/app ./app
+
+      - name: Verify binary is a standalone ELF
+        run: |
+          file ./app | grep -q ELF || {
+            echo "ERROR: ./app is not an ELF binary - check bazel-bin/app"
+            exit 1
+          }
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ env.IMAGE }}:${{ env.IMAGE_TAG }}
+
+      - name: Install kustomize
+        uses: imranismail/setup-kustomize@v3
+        with:
+          version: '5.8.1'
+
+      - name: Write kubeconfig
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        run: |
+          mkdir -p ~/.kube
+          printf '%s' "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Update image tag in kustomization
+        working-directory: k8s/overlays/staging
+        run: |
+          kustomize edit set image \
+            districtlive-server=${{ env.IMAGE }}:${{ env.IMAGE_TAG }}
+
+      - name: Verify image tag in rendered manifest
+        working-directory: k8s/overlays/staging
+        run: |
+          kustomize build . | grep -F "${{ env.IMAGE }}:${{ env.IMAGE_TAG }}" \
+            || (echo "ERROR: rendered manifest does not reference ${{ env.IMAGE }}:${{ env.IMAGE_TAG }}" && exit 1)
+
+      - name: Deploy to staging
+        run: kubectl apply -k k8s/overlays/staging -n districtlive-server
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/districtlive-server \
+            -n districtlive-server --timeout=300s

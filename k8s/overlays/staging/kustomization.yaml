@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+namespace: districtlive-server
+images:
+  - name: districtlive-server
+    newName: ghcr.io/ibcoleman/districtlive-server
+    newTag: latest  # placeholder — always overridden by deploy workflow via `kustomize edit set image` at deploy time; no `latest` tag is ever pushed
+patches:
+  - path: patches/service-loadbalancer.yaml
+    target:
+      kind: Service
+      name: districtlive-server
+  - path: patches/deployment-staging.yaml
+    target:
+      kind: Deployment
+      name: districtlive-server
+  - path: patches/postgres-storage.yaml
+    target:
+      kind: StatefulSet
+      name: postgres

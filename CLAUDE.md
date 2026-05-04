@@ -1,6 +1,52 @@
 # districtlive-server
 
-Last verified: 2026-04-30
+Last verified: 2026-05-04
+
+## Quick Start: Where to Begin
+
+### New feature (touches multiple files or involves architectural decisions)
+1. **Opus** — `/start-design-plan` (describe the idea; Claude will clarify, investigate, and brainstorm options)
+2. `/clear`
+3. **Sonnet** — `/start-implementation-plan @docs/design-plans/YYYY-MM-DD-feature.md`
+4. `/clear`
+5. **Sonnet** — `/execute-implementation-plan @docs/implementation-plans/YYYY-MM-DD-feature/`
+
+### New feature (small — you know exactly what to change, ≤ a few files)
+Skip the workflow. Just implement it directly. No ceremony needed.
+
+### Rough idea (not sure what to build yet, or need to think it through)
+- **Opus** — `/flesh-it-out` — clarifies and sharpens the idea before any design work starts
+- Then proceed to `/start-design-plan` when ready
+
+### Bug fix
+- **Opus** — `/systematic-debugging` first — finds root cause before proposing a fix
+- Small fix: implement directly after diagnosis
+- Larger fix (multiple files, uncertain blast radius): run a mini `/start-design-plan` cycle
+
+### New project (greenfield)
+1. **Opus** — `/flesh-it-out` — settle what you're actually building
+2. **Opus** — `/start-design-plan` — architecture and phases
+3. Continue with plan → execute as above
+
+### Reviewing work
+- After a task: **Sonnet** — `/requesting-code-review`
+- After a session: **Haiku/Sonnet** — `/review-session`
+- After several sessions: **Sonnet** — `/review-recent-sessions`
+
+### Model quick-reference
+| Work type | Model |
+|---|---|
+| Design, architecture, brainstorming, debugging | **Opus** |
+| Implementation, planning, code review, tests | **Sonnet** |
+| File searches, grep, log scanning, lookups | **Haiku** |
+
+### Other useful skills (invoke anytime)
+| Skill | When to use |
+|---|---|
+| `/brainstorming` | Standalone brainstorm, not committing to a design yet |
+| `/asking-clarifying-questions` | Standalone clarification pass |
+| `/retrospective` | When a dev attempt hit a dead end |
+| `/how-to-customize` | Understand `.ed3d/` guidance files |
 
 ## Tech Stack
 - Language: Rust (edition 2021)
@@ -10,6 +56,7 @@ Last verified: 2026-04-30
 - Task runner: `just` (Justfile)
 - Frontend: TypeScript + Vite (multi-entry), embedded in binary via rust-embed
 - Testing: cargo test + integration tests requiring live Postgres
+- Deploy: Kustomize overlays (`k8s/`), GitHub Actions (`.github/workflows/deploy.yml`), DOKS staging cluster
 
 ## Commands
 - `just check` — cargo clippy + fmt check
@@ -29,7 +76,11 @@ Last verified: 2026-04-30
 - `migrations/` — immutable sqlx migration files (never edit existing)
 - `frontend/` — TypeScript SPA, compiled into `frontend/dist/` and embedded
 - `tests/` — integration tests (require live Postgres)
+- `k8s/base/` — base Kubernetes manifests (deployment, service, postgres statefulset)
+- `k8s/overlays/local/` and `k8s/overlays/staging/` — environment-specific kustomize overlays
+- `.github/workflows/` — CI (`ci.yml`), mutation tests (`mutants.yml`), staging deploy (`deploy.yml`)
 - `docs/design-plans/` and `docs/implementation-plans/` — design artifacts
+- `docs/staging-setup.md` — DOKS staging cluster bootstrap runbook
 
 ## Architecture
 Hexagonal / ports-and-adapters:
@@ -63,6 +114,7 @@ Hexagonal / ports-and-adapters:
 | `MUSICBRAINZ_CONFIDENCE_THRESHOLD` | no | `0.7` | Jaro-Winkler match threshold |
 
 ## Boundaries
-- Safe to edit: `src/`, `frontend/src/`, `migrations/` (add new only)
+- Safe to edit: `src/`, `frontend/src/`, `migrations/` (add new only), `k8s/` manifests, `.github/workflows/`
 - Never edit: existing migration files, `.sqlx/` cache (regenerate via `cargo sqlx prepare`)
 - Never touch: `Cargo.lock` without reason (committed, intentional)
+- Staging deploys: triggered automatically by `deploy.yml` on successful `ci` workflow run on `main`; image tag is the commit SHA (never `latest`)
