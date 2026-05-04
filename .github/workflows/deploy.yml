@@ -57,7 +57,11 @@ jobs:
         run: cp bazel-bin/app ./app
 
       - name: Verify binary is a standalone ELF
-        run: file ./app | grep -q ELF || (echo "ERROR: ./app is not an ELF binary — check bazel-bin/app" && exit 1)
+        run: |
+          file ./app | grep -q ELF || {
+            echo "ERROR: ./app is not an ELF binary - check bazel-bin/app"
+            exit 1
+          }
 
       - name: Log in to ghcr.io
         uses: docker/login-action@v4
