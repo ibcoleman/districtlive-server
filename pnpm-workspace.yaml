@@ -1,2 +1,8 @@
 packages:
   - "frontend"
+# pnpm v11+: allowBuilds controls which packages may run build scripts
+allowBuilds:
+  esbuild: true
+# aspect_rules_js (Bazel) reads this to know which packages have lifecycle hooks
+onlyBuiltDependencies:
+  - esbuild
