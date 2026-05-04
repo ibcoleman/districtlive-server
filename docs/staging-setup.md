@@ -90,6 +90,7 @@ kubectl create secret generic districtlive-secrets \
 | `SPOTIFY_CLIENT_ID` | Enables Spotify artist enrichment |
 | `SPOTIFY_CLIENT_SECRET` | Required alongside SPOTIFY_CLIENT_ID |
 | `BANDSINTOWN_APP_ID` | Enables Bandsintown event ingestion connector |
+| `DICEFM_VENUE_SLUGS` | Comma-separated Dice.fm venue slugs; enables Dice.fm connector |
 
 Example with optional keys:
 
@@ -152,12 +153,17 @@ gh secret list
 
 Push or merge any commit to `main`. The `ci` workflow runs first; once it passes, `deploy.yml` triggers automatically.
 
-Monitor the deploy:
-1. Go to the repository on GitHub → Actions tab
-2. Find the `deploy` workflow run
-3. Watch the steps complete
+Monitor the deploy from the terminal:
 
-Or watch from the terminal after the workflow starts:
+```bash
+gh run watch --repo ibcoleman/districtlive-server
+# or list recent runs:
+gh run list --workflow=deploy.yml --repo ibcoleman/districtlive-server
+```
+
+Or go to the repository on GitHub → Actions tab → find the `deploy` workflow run.
+
+Once the workflow finishes, watch the Kubernetes rollout:
 
 ```bash
 kubectl rollout status deployment/districtlive-server \
