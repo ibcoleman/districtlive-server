@@ -22,7 +22,7 @@ pub struct ArtistsQuery {
     pub local: bool,
     #[serde(default)]
     pub page: i64,
-    #[serde(default = "default_per_page")]
+    #[serde(default = "default_per_page", rename = "size")]
     pub per_page: i64,
 }
 
@@ -38,12 +38,7 @@ pub async fn list_artists(
         let artists = state.artists.find_local().await?;
         let count = i64::try_from(artists.len()).unwrap_or(i64::MAX);
         let dtos = artists.iter().map(ArtistDto::from_artist).collect();
-        return Ok(Json(PageDto {
-            items: dtos,
-            total: count,
-            page: 0,
-            per_page: count,
-        }));
+        return Ok(Json(PageDto::from_page(dtos, count, 0, count)));
     }
     if let Some(name) = &q.name {
         let artist = state.artists.find_by_name(name).await?;
@@ -52,12 +47,7 @@ pub async fn list_artists(
             .map(ArtistDto::from_artist)
             .collect::<Vec<_>>();
         let count = i64::try_from(items.len()).unwrap_or(i64::MAX);
-        return Ok(Json(PageDto {
-            items,
-            total: count,
-            page: 0,
-            per_page: count,
-        }));
+        return Ok(Json(PageDto::from_page(items, count, 0, count)));
     }
     let page = state
         .artists
@@ -67,12 +57,12 @@ pub async fn list_artists(
         })
         .await?;
     let dtos = page.items.iter().map(ArtistDto::from_artist).collect();
-    Ok(Json(PageDto {
-        items: dtos,
-        total: page.total,
-        page: page.page,
-        per_page: page.per_page,
-    }))
+    Ok(Json(PageDto::from_page(
+        dtos,
+        page.total,
+        page.page,
+        page.per_page,
+    )))
 }
 
 pub async fn get_artist(

@@ -285,7 +285,15 @@ impl EventRepository for PgEventRepository {
 
         let total: i64 = count_qb.build_query_scalar().fetch_one(&*self.pool).await?;
 
-        qb.push(" ORDER BY e.start_time ASC LIMIT ")
+        // Parse the optional sort spec using an allowlist (no raw user input in SQL).
+        // Accepts camelCase field names like `startTime` or `createdAt`, optional `,asc`/`,desc`.
+        // Defaults to `e.start_time ASC` when no valid sort is provided.
+        let (order_col, order_dir) = parse_sort(&filters.sort);
+        qb.push(" ORDER BY ")
+            .push(order_col)
+            .push(" ")
+            .push(order_dir)
+            .push(" LIMIT ")
             .push_bind(page.per_page)
             .push(" OFFSET ")
             .push_bind(page.offset());
@@ -380,6 +388,96 @@ impl EventRepository for PgEventRepository {
             .into_iter()
             .map(|(venue_id, count)| (VenueId(venue_id), count))
             .collect())
+    }
+}
+
+// ---- Sort allowlist ----
+
+/// Parse a Spring-Pageable-style sort param (e.g. `createdAt,desc`) into a
+/// `(column, direction)` pair using a strict allowlist.
+///
+/// Column names and direction CANNOT be SQL parameterized — they are
+/// string-interpolated. This function only returns matched allowlist values,
+/// never raw user input, preventing SQL injection.
+///
+/// Returns `(column, direction)` as `&'static str` pairs. Falls back to
+/// `(e.start_time, ASC)` for unknown/empty sort.
+fn parse_sort(sort: &Option<String>) -> (&'static str, &'static str) {
+    let Some(spec) = sort else {
+        return ("e.start_time", "ASC");
+    };
+    let mut parts = spec.split(',');
+    let field = parts.next().unwrap_or("");
+    let dir_raw = parts.next().unwrap_or("asc").trim();
+
+    let col = match field {
+        "startTime" => "e.start_time",
+        "createdAt" => "e.created_at",
+        "minPrice" => "e.min_price",
+        "maxPrice" => "e.max_price",
+        "title" => "e.title",
+        _ => return ("e.start_time", "ASC"), // unknown field → default
+    };
+
+    let dir = match dir_raw.to_ascii_lowercase().as_str() {
+        "desc" => "DESC",
+        _ => "ASC",
+    };
+
+    (col, dir)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_sort;
+
+    #[test]
+    fn parse_sort_none_defaults_to_start_time_asc() {
+        assert_eq!(parse_sort(&None), ("e.start_time", "ASC"));
+    }
+
+    #[test]
+    fn parse_sort_created_at_desc() {
+        assert_eq!(
+            parse_sort(&Some("createdAt,desc".into())),
+            ("e.created_at", "DESC")
+        );
+    }
+
+    #[test]
+    fn parse_sort_start_time_asc() {
+        assert_eq!(
+            parse_sort(&Some("startTime,asc".into())),
+            ("e.start_time", "ASC")
+        );
+    }
+
+    #[test]
+    fn parse_sort_sql_injection_falls_back() {
+        // Crafted injection attempt — must NOT be interpolated into SQL.
+        // Falls back to default because field doesn't match allowlist.
+        assert_eq!(
+            parse_sort(&Some("startTime; DROP TABLE events--".into())),
+            ("e.start_time", "ASC")
+        );
+    }
+
+    #[test]
+    fn parse_sort_unknown_field_falls_back() {
+        assert_eq!(
+            parse_sort(&Some("unknownField,asc".into())),
+            ("e.start_time", "ASC")
+        );
+    }
+
+    #[test]
+    fn parse_sort_direction_case_insensitive() {
+        assert_eq!(parse_sort(&Some("title,DESC".into())), ("e.title", "DESC"));
+    }
+
+    #[test]
+    fn parse_sort_defaults_direction_to_asc() {
+        assert_eq!(parse_sort(&Some("title".into())), ("e.title", "ASC"));
     }
 }
 

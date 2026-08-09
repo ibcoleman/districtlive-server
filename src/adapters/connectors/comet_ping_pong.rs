@@ -9,9 +9,9 @@ use std::str::FromStr;
 use time::OffsetDateTime;
 
 use crate::{
+    adapters::connectors::resolve_url,
     domain::{error::IngestionError, event::RawEvent, source::SourceType},
     ports::SourceConnector,
-    adapters::connectors::resolve_url,
 };
 
 const VENUE_NAME: &str = "Comet Ping Pong";

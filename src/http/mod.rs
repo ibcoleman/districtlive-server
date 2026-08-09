@@ -81,7 +81,7 @@ pub fn create_router(state: AppState) -> axum::Router {
         .route("/api/venues/{id}", get(venues::get_venue))
         .route("/api/artists", get(artists::list_artists))
         .route("/api/artists/{id}", get(artists::get_artist))
-        .route("/api/featured", get(featured::get_featured))
+        .route("/api/featured/current", get(featured::get_featured))
         // Static assets from embedded frontend
         .route("/", get(index))
         .route("/assets/{*path}", get(asset))

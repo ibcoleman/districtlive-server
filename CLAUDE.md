@@ -2,6 +2,18 @@
 
 Last verified: 2026-05-04
 
+## Workspace Topology
+
+`districtlive-deploy/` is a **Jujutsu (jj) workspace** linked to `districtlive-server/.jj/repo`. There is no `.git` directory here.
+
+- **File edits:** work directly in `districtlive-deploy/`
+- **Committing:** `jj describe -m "message"` then `jj new` (jj auto-tracks all changes — no staging)
+- **Log / diff / status:** `jj log`, `jj diff`, `jj st`
+- **Pushing:** `jj git push --bookmark <name>`
+- **Bookmarks (branches):** `jj bookmark create <name>` / `jj bookmark list`
+
+**Never use raw `git` commands** — a `pre_tool_use` hook blocks all `git` invocations. Use the jj equivalents above.
+
 ## Quick Start: Where to Begin
 
 ### New feature (touches multiple files or involves architectural decisions)
@@ -75,6 +87,7 @@ Skip the workflow. Just implement it directly. No ceremony needed.
 - `src/config.rs` — environment-variable configuration
 - `migrations/` — immutable sqlx migration files (never edit existing)
 - `frontend/` — TypeScript SPA, compiled into `frontend/dist/` and embedded
+- `flutter/` — Flutter mobile client app (Dart)
 - `tests/` — integration tests (require live Postgres)
 - `k8s/base/` — base Kubernetes manifests (deployment, service, postgres statefulset)
 - `k8s/overlays/local/` and `k8s/overlays/staging/` — environment-specific kustomize overlays
@@ -118,3 +131,57 @@ Hexagonal / ports-and-adapters:
 - Never edit: existing migration files, `.sqlx/` cache (regenerate via `cargo sqlx prepare`)
 - Never touch: `Cargo.lock` without reason (committed, intentional)
 - Staging deploys: triggered automatically by `deploy.yml` on successful `ci` workflow run on `main`; image tag is the commit SHA (never `latest`)
+
+## Flutter Client (`flutter/`)
+
+Mobile client app for the DistrictLive platform. Feature-first clean architecture with Riverpod, Drift, and Freezed.
+
+### Build Commands
+
+```bash
+cd flutter
+
+# Install dependencies
+flutter pub get
+
+# Run on connected device or emulator
+flutter run
+
+# Run all tests
+flutter test
+
+# Regenerate Freezed/JSON/Riverpod/Drift generated files
+dart run build_runner build --delete-conflicting-outputs
+
+# Release build
+flutter build apk --release
+```
+
+### Local Development
+
+Override the API base URL using `--dart-define`:
+
+```bash
+flutter run --dart-define=BASE_URL=http://localhost:8080
+```
+
+Default is `https://districtlive.memetoclasm.com`. Logging (Dio LogInterceptor) is enabled only in debug mode.
+
+### Architecture
+
+- **State management**: Riverpod (generated providers via `@riverpod` annotations)
+- **Local DB**: Drift (SQLite) with staleness-based cache-first loading
+- **Networking**: Dio with `LogInterceptor` (debug only)
+- **Serialization**: Freezed + `json_serializable` (generated `.g.dart` / `.freezed.dart` files are committed)
+- **Navigation**: go_router with `StatefulShellRoute.indexedStack` for bottom nav
+
+### API Contract Conventions
+
+The Flutter app expects the server to produce JSON matching the original Kotlin/Spring Boot server:
+
+- **JSON field casing**: camelCase (`startTime`, `minPrice`, `ticketUrl`, `onSaleDate`)
+- **Pagination**: Spring `Page<T>` format (`content`, `number`, `size`, `totalElements`, `totalPages`, `first`, `last`, `empty`)
+- **Featured endpoint**: `/api/featured/current`
+- **Query params**: `venue`, `size`, `dateFrom`, `dateTo`, `sort` (e.g., `createdAt,desc`)
+- **Price serialization**: JSON numbers (not strings) — `minPrice`/`maxPrice` are `double?`
+- **Enum casing**: SCREAMING_SNAKE_CASE (`ALL_AGES`, `EIGHTEEN_PLUS`, `TICKETMASTER_API`, `DICE_FM`)

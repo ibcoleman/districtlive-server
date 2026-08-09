@@ -1,14 +1,15 @@
 # Architecture & Implementation Rationale
 
-This document explains the major design choices behind `districtlive-server` and what
-the template trades away in exchange for them.
+This document explains the major design choices behind the DistrictLive server and client.
+Some sections were originally written for the template project and have been updated to
+reflect the real domain (Events, Venues, Artists, Ingestion, Enrichment, Flutter client).
 
 ## 1. Why ports and adapters
 
 Pure domain types in the centre, side effects pushed to the edges. Services depend on
 port traits, never on adapter implementations directly.
 
-- **Types are guardrails.** A service that takes `Arc<dyn NoteRepository>` cannot reach
+- **Types are guardrails.** A handler that takes `Arc<dyn EventRepository>` cannot reach
   for a database, an HTTP client, or the clock. The compiler enforces what the design
   intends.
 - **One pattern per adapter.** A new adapter is always: define a port trait in
@@ -18,9 +19,9 @@ port traits, never on adapter implementations directly.
   same port trait (`tests/support/mod.rs`); integration tests use the real adapters.
   No mocking framework, no patching.
 
-Worked examples in the demo domain: `GreetingPort` / `StaticGreeter`, and
-`NoteRepository` / `PgNotes`. The template's `docs/ADDING-ADAPTERS.md` walks through
-adding a new port end-to-end.
+Worked examples in this codebase: `EventRepository` / `PgEventRepository`, and
+`SourceConnector` / `TicketmasterConnector`. Adding a new ingestion source follows
+the pattern documented in `CLAUDE.md`.
 
 ## 2. Why one-engine Bazel
 
@@ -163,9 +164,8 @@ The full gap log lives at `docs/implementation-plans/phase8-gaps/iteration-1.md`
 | Ports & adapters | Compiler-enforced isolation; no mocking framework | One-time pattern learning curve |
 | One-engine Bazel | One canonical build; Cargo source-of-truth | Two-step add-a-dep workflow |
 | `proptest` + `cargo-mutants` | Tests that bite | More test-authoring effort upfront |
-| One inner loop (`just dev`) | Local == prod within a build cycle | Slower than `cargo run` |
-| No `cargo-generate` | No templating tax for author or consumer | Manual sed (one-shot, scripted) |
 | Pre-built frontend | Simple, debuggable | Not hermetic; CI bootstrap step |
+| Flutter in monorepo | Single repo for server + client; shared contract docs | Two toolchains (Rust + Dart) |
 
-This template prioritizes **clarity, reliability, and compiler-enforced correctness**
+This project prioritizes **clarity, reliability, and compiler-enforced correctness**
 over maximal hermeticity or minimum keystrokes.

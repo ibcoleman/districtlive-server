@@ -37,6 +37,7 @@ impl std::fmt::Display for EventId {
 /// Lifecycle status of an event listing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum EventStatus {
     Active,
     Cancelled,
@@ -47,16 +48,21 @@ pub enum EventStatus {
 /// Broad price tier for faceted filtering.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum PriceTier {
     Free,
+    #[serde(rename = "UNDER_15")]
     Under15,
+    #[serde(rename = "PRICE_15_TO_30")]
     Price15To30,
+    #[serde(rename = "OVER_30")]
     Over30,
 }
 
 /// Age restriction policy for the event.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum AgeRestriction {
     AllAges,
     EighteenPlus,
@@ -66,6 +72,7 @@ pub enum AgeRestriction {
 /// Genre/format classification for an event.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum EventType {
     Concert,
     AlbumRelease,
@@ -180,4 +187,7 @@ pub struct EventFilters {
     pub neighborhood: Option<String>,
     pub price_max: Option<Decimal>,
     pub status: Option<EventStatus>,
+    /// Optional sort specification, e.g. `createdAt,desc` or `startTime,asc`.
+    /// Parsed by the adapter using an allowlist (no raw SQL interpolation).
+    pub sort: Option<String>,
 }

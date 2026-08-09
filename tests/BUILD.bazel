@@ -18,6 +18,7 @@ rust_test(
         "@crates//:base64",
         "@crates//:reqwest",
         "@crates//:serde_json",
+        "@crates//:time",
         "@crates//:tokio",
     ],
     proc_macro_deps = [

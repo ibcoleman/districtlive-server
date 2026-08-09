@@ -71,14 +71,18 @@ fe-build:
 # Offline test suite (fakes; no Postgres required).
 # Note: test targets //tests:api and //tests:properties come online in Phase 2/3.
 # Until then, this recipe will fail with a bazel error (expected state for Phase 1).
-test: fe-build
+test: doctor fe-build
     bazel test //tests:api //tests:properties //tests:connector_tests --test_output=errors
 
 test-integration:
     bazel test //tests:integration_db --test_env=DATABASE_URL=${DATABASE_URL:-postgres://app:app@localhost:5432/app} --test_arg=--ignored --test_output=all
 
+# Release build.
+build:
+    cargo build --release
+
 # Formatting, linting, and `just test` — matches CI.
-check: fe-build
+check: doctor fe-build
     cargo fmt --check
     cargo clippy --all-targets --features test-helpers -- -D warnings
     just test

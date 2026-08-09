@@ -20,6 +20,9 @@ frontend/dist
 # jj (Jujutsu) VCS state
 .jj
 
+# Polytoken harness state (session-local)
+.polytoken
+
 # Built binary (produced by `bazel build`, should not be committed)
 /app
 

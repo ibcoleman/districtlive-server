@@ -20,7 +20,7 @@ pub struct VenuesQuery {
     pub neighborhood: Option<String>,
     #[serde(default)]
     pub page: i64,
-    #[serde(default = "default_per_page")]
+    #[serde(default = "default_per_page", rename = "size")]
     pub per_page: i64,
 }
 
@@ -65,12 +65,7 @@ pub async fn list_venues(
         })
         .collect();
 
-    Ok(Json(PageDto {
-        items: dtos,
-        total,
-        page: q.page,
-        per_page: q.per_page,
-    }))
+    Ok(Json(PageDto::from_page(dtos, total, q.page, q.per_page)))
 }
 
 pub async fn get_venue(

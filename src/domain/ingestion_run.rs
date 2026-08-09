@@ -25,6 +25,7 @@ impl Default for IngestionRunId {
 /// Lifecycle status of an ingestion run.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum IngestionRunStatus {
     Running,
     Success,

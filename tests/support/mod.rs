@@ -224,3 +224,122 @@ pub fn test_state() -> districtlive_server::http::AppState {
         connectors: vec![],
     }
 }
+
+// ---- Seeded (stateful) test fakes ----
+
+use std::sync::{Arc, Mutex};
+
+/// Featured repository backed by an `Arc<Mutex<Option<FeaturedEvent>>>`.
+/// Returns the seeded featured event from `find_current()`.
+pub struct SeededFeaturedRepository {
+    inner: Arc<Mutex<Option<FeaturedEvent>>>,
+}
+
+impl SeededFeaturedRepository {
+    pub fn new(featured: FeaturedEvent) -> Self {
+        Self {
+            inner: Arc::new(Mutex::new(Some(featured))),
+        }
+    }
+}
+
+#[async_trait]
+impl FeaturedEventRepository for SeededFeaturedRepository {
+    async fn find_current(&self) -> Result<Option<FeaturedEvent>, RepoError> {
+        Ok(self.inner.lock().unwrap().clone())
+    }
+    async fn find_all_desc(&self) -> Result<Vec<FeaturedEvent>, RepoError> {
+        Ok(self.inner.lock().unwrap().iter().cloned().collect())
+    }
+    async fn find_by_id(&self, _id: FeaturedEventId) -> Result<FeaturedEvent, RepoError> {
+        match self.inner.lock().unwrap().clone() {
+            Some(f) if f.id == _id => Ok(f),
+            _ => Err(RepoError::NotFound),
+        }
+    }
+    async fn save(&self, _featured: &FeaturedEvent) -> Result<FeaturedEvent, RepoError> {
+        Err(RepoError::NotFound)
+    }
+}
+
+/// Event repository backed by an `Arc<Mutex<Vec<Event>>>`.
+/// `find_by_id` returns the first event with a matching id.
+/// `find_all` returns all seeded events (ignoring filters/pagination beyond total count).
+pub struct SeededEventRepository {
+    inner: Arc<Mutex<Vec<Event>>>,
+}
+
+impl SeededEventRepository {
+    pub fn new(events: Vec<Event>) -> Self {
+        Self {
+            inner: Arc::new(Mutex::new(events)),
+        }
+    }
+}
+
+#[async_trait]
+impl EventRepository for SeededEventRepository {
+    async fn upsert(&self, _cmd: EventUpsertCommand) -> Result<UpsertResult, RepoError> {
+        Ok(UpsertResult::Created)
+    }
+    async fn find_by_id(&self, id: EventId) -> Result<Event, RepoError> {
+        self.inner
+            .lock()
+            .unwrap()
+            .iter()
+            .find(|e| e.id == id)
+            .cloned()
+            .ok_or(RepoError::NotFound)
+    }
+    async fn find_by_slug(&self, _slug: &str) -> Result<Option<Event>, RepoError> {
+        Ok(None)
+    }
+    async fn find_all(&self, _f: EventFilters, p: Pagination) -> Result<Page<Event>, RepoError> {
+        let all = self.inner.lock().unwrap().clone();
+        let total = i64::try_from(all.len()).unwrap_or(i64::MAX);
+        Ok(Page {
+            items: all,
+            total,
+            page: p.page,
+            per_page: p.per_page,
+        })
+    }
+    async fn find_by_venue_id(&self, _id: VenueId) -> Result<Vec<Event>, RepoError> {
+        Ok(vec![])
+    }
+    async fn find_related_events(&self, _id: EventId, _days: i64) -> Result<Vec<Event>, RepoError> {
+        Ok(vec![])
+    }
+    async fn find_upcoming(&self) -> Result<Vec<Event>, RepoError> {
+        Ok(vec![])
+    }
+    async fn count_upcoming_by_venue(&self) -> Result<Vec<(VenueId, i64)>, RepoError> {
+        Ok(vec![])
+    }
+}
+
+/// Construct a test AppState seeded with a featured event and its associated event.
+///
+/// - `featured` — the featured event record (must reference the same EventId as `event`).
+/// - `event` — the domain Event that the featured event points to.
+pub fn seeded_test_state(
+    featured: FeaturedEvent,
+    event: Event,
+) -> districtlive_server::http::AppState {
+    use districtlive_server::{config::Config, http::AppState};
+    use std::sync::Arc;
+
+    let config = Arc::new(Config::test_default());
+    AppState {
+        config,
+        venues: Arc::new(EmptyVenueRepository),
+        artists: Arc::new(EmptyArtistRepository),
+        events: Arc::new(SeededEventRepository::new(vec![event])),
+        featured: Arc::new(SeededFeaturedRepository::new(featured)),
+        sources: Arc::new(EmptySourceRepository),
+        ingestion_runs: Arc::new(EmptyIngestionRunRepository),
+        http_client: reqwest::Client::new(),
+        ingestion_orchestrator: None,
+        connectors: vec![],
+    }
+}

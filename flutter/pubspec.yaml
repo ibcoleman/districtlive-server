@@ -1,0 +1,68 @@
+name: district_live
+description: District Live — DC-area live music discovery
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^3.0.0
+  riverpod_annotation: ^4.0.0
+
+  # Navigation
+  go_router: ^17.1.0
+
+  # Database (SQLite)
+  drift: ^2.22.0
+  drift_flutter: ^0.2.0
+  sqlite3_flutter_libs: ^0.5.0
+
+  # HTTP Client
+  dio: ^5.4.0
+
+  # Models
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.9.0
+
+  # Images
+  cached_network_image: ^3.3.0
+
+  # Sharing & URLs
+  share_plus: ^12.0.1
+  url_launcher: ^6.3.0
+
+  # Utilities
+  path_provider: ^2.1.0
+  path: ^1.8.0
+  intl: ^0.20.2
+  timezone: ^0.9.0
+  package_info_plus: ^8.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  riverpod: ^3.0.0  # For ProviderContainer in tests
+
+  # Code Generation
+  build_runner: ^2.4.0
+  riverpod_generator: ^4.0.0
+  freezed: ^3.2.5
+  json_serializable: ^6.8.0
+  drift_dev: ^2.22.0
+
+  # Icon & Splash Screen Generation
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.1
+
+flutter:
+  uses-material-design: true
+
+  # Assets
+  assets:
+    - assets/icon/

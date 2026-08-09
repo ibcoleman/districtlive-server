@@ -47,6 +47,41 @@ else
     echo "ok       ENABLE_LSP_TOOL"
 fi
 
+# Validate pnpm-workspace.yaml is well-formed (no placeholders, required keys present).
+pnpm_ws="pnpm-workspace.yaml"
+if [ ! -f "$pnpm_ws" ]; then
+    echo "MISSING  $pnpm_ws  (required for pnpm/Bazel builds)"
+    missing=1
+else
+    pnpm_ok=1
+
+    # Reject lines that look like instruction placeholders rather than real values.
+    # Matches patterns like: "set this to", <placeholder>, {{mustache}}, TODO, FIXME.
+    if grep -Eiq '(set this to|<[^>]+>|\{\{[^}]+\}\}|TODO|FIXME)' "$pnpm_ws"; then
+        echo "MISSING  $pnpm_ws: contains placeholder text — check for unset template values"
+        missing=1
+        pnpm_ok=0
+    fi
+
+    # Require allowBuilds section (pnpm v11+).
+    if ! grep -q '^allowBuilds:' "$pnpm_ws"; then
+        echo "MISSING  $pnpm_ws: missing 'allowBuilds:' key (required for pnpm v11)"
+        missing=1
+        pnpm_ok=0
+    fi
+
+    # Require onlyBuiltDependencies section (aspect_rules_js / Bazel).
+    if ! grep -q '^onlyBuiltDependencies:' "$pnpm_ws"; then
+        echo "MISSING  $pnpm_ws: missing 'onlyBuiltDependencies:' key (required for Bazel / aspect_rules_js)"
+        missing=1
+        pnpm_ok=0
+    fi
+
+    if [ "$pnpm_ok" -eq 1 ]; then
+        echo "ok       $pnpm_ws"
+    fi
+fi
+
 if [ "$missing" -ne 0 ]; then
     echo ""
     echo "FAIL: one or more required tools are missing"

@@ -46,7 +46,7 @@ axum-extra = { version = "=0.10.3", features = ["typed-header"] }
 
 # Exact decimal arithmetic — price/money fields (Phase 2+)
 # default features (std, serde support) are minimal and appropriate; no need to disable
-rust_decimal = { version = "=1.41.0", features = ["serde"] }
+rust_decimal = { version = "=1.41.0", features = ["serde", "serde-float"] }
 
 # Base64 encoding — used by Basic auth test helpers (Phase 4 tests)
 base64 = "=0.22.1"

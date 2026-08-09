@@ -21,18 +21,20 @@ use crate::{
 /// Query parameters for GET /api/events
 #[derive(Deserialize, Default)]
 pub struct EventsQuery {
-    #[serde(default, with = "time::serde::iso8601::option")]
+    #[serde(default, with = "time::serde::iso8601::option", rename = "dateFrom")]
     pub date_from: Option<OffsetDateTime>,
-    #[serde(default, with = "time::serde::iso8601::option")]
+    #[serde(default, with = "time::serde::iso8601::option", rename = "dateTo")]
     pub date_to: Option<OffsetDateTime>,
+    #[serde(rename = "venue")]
     pub venue_slug: Option<String>,
     pub genre: Option<String>,
     pub neighborhood: Option<String>,
     pub price_max: Option<Decimal>,
     pub status: Option<EventStatus>,
+    pub sort: Option<String>,
     #[serde(default)]
     pub page: i64,
-    #[serde(default = "default_per_page")]
+    #[serde(default = "default_per_page", rename = "size")]
     pub per_page: i64,
 }
 
@@ -52,6 +54,7 @@ pub async fn list_events(
         neighborhood: q.neighborhood,
         price_max: q.price_max,
         status: q.status,
+        sort: q.sort,
     };
     let page = Pagination {
         page: q.page,
@@ -60,14 +63,14 @@ pub async fn list_events(
     let result = state.events.find_all(filters, page).await?;
 
     // Build EventDto for each event (venue detail not included in list — add Phase 4 extension)
-    let items = result.items.iter().map(EventDto::from_event).collect();
+    let content = result.items.iter().map(EventDto::from_event).collect();
 
-    Ok(Json(PageDto {
-        items,
-        total: result.total,
-        page: result.page,
-        per_page: result.per_page,
-    }))
+    Ok(Json(PageDto::from_page(
+        content,
+        result.total,
+        result.page,
+        result.per_page,
+    )))
 }
 
 /// Get event detail by UUID path parameter.

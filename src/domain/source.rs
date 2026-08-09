@@ -30,6 +30,7 @@ impl std::fmt::Display for SourceId {
 /// Classification of how this source retrieves events.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text", rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum SourceType {
     TicketmasterApi,
     BandsintownApi,
